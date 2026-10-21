@@ -1,0 +1,88 @@
+# AcChess — Play Without Barriers ♟️
+
+**An Academic HCI Prototype for Accessible Chess Interfaces**
+
+## ⚠️ Disclaimer
+
+AcChess is a student-developed academic prototype created for educational and research purposes as part of a Human–Computer Interaction (HCI) project.
+
+**AcChess is not an official Chess.com product.** It is not affiliated with, endorsed by, sponsored by, or operated by Chess.com. The project is an independent redesign concept inspired by the interface and interaction patterns of existing online chess platforms.
+
+This project is not connected to Chess.com servers and does not provide official Chess.com accounts, online multiplayer services, rankings, subscriptions, or other official platform services.
+
+## 🎓 Project Purpose
+
+AcChess explores how multimodal interaction and accessibility-focused interface design can help reduce barriers to playing and learning chess.
+
+The prototype focuses on improving usability for:
+
+- **Blind users:** screen-reader support, keyboard navigation, and spoken board descriptions.
+- **Low-vision users:** high contrast, adjustable text and board sizes, and clearer visual indicators.
+- **Users with motor impairments:** alternative input methods, keyboard controls, voice commands, and larger interactive targets.
+
+The project applies Human–Computer Interaction (HCI) principles to explore discoverability, feedback, consistency, error prevention, user control, and inclusive interaction.
+
+## 🧩 Prototype Features
+
+Depending on the current implementation, AcChess may include:
+
+- Home dashboard and chess-playing interface.
+- Game review and puzzle demonstrations.
+- Accessibility settings and visual customization.
+- Keyboard navigation and shortcuts.
+- Voice-control interface and typed command alternatives.
+- Spoken feedback and board descriptions.
+- High-contrast and text-size options.
+- Responsive layouts for desktop, tablet, and mobile devices.
+
+Some features may be simulated or partially implemented. The presence of a control in the interface does not necessarily mean it provides a fully functional service. Please refer to the actual implementation when evaluating feature support.
+
+## 🧪 Academic and Evaluation Notice
+
+AcChess is a prototype intended for demonstration, iterative design, and usability evaluation. It should not be considered a validated accessibility product or a substitute for a fully tested chess platform.
+
+Any demonstration content, sample moves, opponent behavior, analysis, or puzzle solutions should be treated as illustrative unless explicitly verified by the implementation.
+
+No claims of formal accessibility certification, completed user testing, or proven usability outcomes are made unless supported by documented testing results.
+
+## 🔒 Privacy and Data
+
+Do not enter passwords, sensitive personal information, or confidential information into this prototype.
+
+If browser features such as speech recognition or microphone access are implemented, their behavior may depend on the browser, device, permissions, and external services involved. Review the implementation and relevant browser privacy settings before using these features.
+
+Do not assume that information is stored securely, transmitted privately, or deleted automatically unless the implementation explicitly provides and verifies those behaviors.
+
+## 🖥️ Usage
+
+AcChess may be run locally in a compatible web browser or hosted as a static website, for example through GitHub Pages, depending on its implementation.
+
+Some browser-dependent features may require a secure context, compatible browser support, or additional configuration.
+
+## 🛠️ Technology
+
+The project may use HTML, CSS, JavaScript, browser accessibility APIs, and other libraries or tools included in the implementation.
+
+Refer to the repository files for the actual technologies and dependencies used.
+
+## 🏷️ Intellectual Property and Attribution
+
+Chess.com names, trademarks, logos, and other third-party assets remain the property of their respective owners.
+
+Any third-party assets or libraries included in this repository remain subject to their applicable licenses and terms.
+
+AcChess is an independent academic prototype. It does not claim ownership of third-party trademarks or assets. The project should not be interpreted as an official Chess.com application.
+
+## 📌 Limitations
+
+- The prototype may not implement every feature of a production chess platform.
+- Accessibility behavior may vary across browsers, devices, and assistive technologies.
+- Voice recognition and other browser-dependent features may be unavailable in some environments.
+- Responsive behavior and accessibility must be tested on the devices and assistive technologies intended for use.
+- No formal accessibility conformance is claimed without appropriate verification.
+
+---
+
+**AcChess — Play Without Barriers**
+
+*An academic exploration of more inclusive chess interaction.*
