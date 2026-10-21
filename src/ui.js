@@ -86,26 +86,43 @@ function outsideScope(title,what){
   infoDialog(title,`<p>${esc(what)}</p><p class="dlg-hint">This section is outside the five redesigned prototype screens (Home, Playing, Game Review, Puzzles, Play menu). It is shown here so the navigation structure stays familiar.</p>`,
     [{label:'Go to Play menu',primary:true,onClick:()=>navigate('menu')}]);
 }
-function showKeyHelp(){
-  infoDialog('Keyboard shortcuts',`
-   <table class="keys"><tbody>
-    <tr><th>Arrow keys</th><td>Move between squares (Home / End: first / last file)</td></tr>
-    <tr><th>Enter</th><td>Select a piece, then press again on a highlighted square to move</td></tr>
-    <tr><th>Space</th><td>Push-to-talk: press, wait for “Listening”, then say your move (when the board or page has focus). Turn off in Settings to make Space act like Enter.</td></tr>
-    <tr><th>Esc</th><td>Cancel the current selection (does not undo a move)</td></tr>
-    <tr><th>R</th><td>Read the whole board</td></tr>
-    <tr><th>T</th><td>Whose turn is it</td></tr>
-    <tr><th>L</th><td>Read the last move</td></tr>
-    <tr><th>M</th><td>Read legal moves for the selected piece (or the square under the cursor)</td></tr>
-    <tr><th>D</th><td>Describe the square under the cursor</td></tr>
-    <tr><th>H</th><td>Puzzle hint</td></tr>
-    <tr><th>Page Up / Page Down</th><td>Previous / next move in history or review</td></tr>
-    <tr><th>?</th><td>Show this help</td></tr>
-    <tr><th>Alt + Shift + A</th><td>Open or close Accessibility Settings (any screen)</td></tr>
-    <tr><th>Alt + Shift + V</th><td>Open or close Voice Controls (any screen)</td></tr>
-   </tbody></table>
-   <p class="dlg-hint">If these shortcuts clash with your screen reader or keyboard layout, use the always-visible “Accessibility Settings” and “Open Voice Controls” buttons at the top of every screen.</p>`);
+const VOICE_HELP=[
+  ['On the board',['Select e2','Move e2 to e4','Knight to f3','Castle kingside','Cancel selection','Undo my last move','Read the board','Read legal moves','Whose turn is it','Describe e4']],
+  ['In a game',['Previous move','Next move','First position','Last position','Flip the board','Offer a draw','Resign (always asks you to confirm)']],
+  ['Puzzles',['Hint','Try again','Next puzzle','Read the puzzle']],
+  ['Moving around AcChess',['Go to home','Go to puzzles','Go to game review','Go to play menu','Go back','What can I do here','List controls','Scroll down']],
+  ['Settings',['Open accessibility settings','Enable high contrast','Increase text size','Turn off sound','Turn on screen reader mode','Reset settings']]
+];
+const KEY_HELP=[
+  ['Arrow keys','Move between squares (Home / End: first / last file)'],
+  ['Enter','Select a piece, then press again on a highlighted square to move'],
+  ['Space','Push-to-talk: press, wait for “Listening”, then say your move (board or page focused). Turn it off in Settings to make Space act like Enter.'],
+  ['Esc','Cancel the current selection (does not undo a move) or close a dialog'],
+  ['R','Read the whole board'],['T','Whose turn is it'],['L','Read the last move'],
+  ['M','Read legal moves for the selected piece (or the square under the cursor)'],['D','Describe the square under the cursor'],
+  ['H','Puzzle hint'],['Page Up / Page Down','Previous / next move in history or review'],['?','Show this help'],
+  ['Alt + Shift + A','Open or close Accessibility Settings (any screen)'],['Alt + Shift + V','Open or close Voice Controls (any screen)']
+];
+function helpBodyHTML(){
+  return `<p class="dlg-hint">Open this help any time with the <b>Help</b> button at the top of the screen.</p>
+   <section aria-labelledby="hp1"><h3 id="hp1">Getting started</h3>
+    <ul class="welcome-list">${WELCOME_ITEMS.map(([k,a,b])=>`<li class="w-${k}"><b>${a}</b> ${b}</li>`).join('')}</ul></section>
+   <section aria-labelledby="hp2"><h3 id="hp2">Keyboard shortcuts</h3>
+    <table class="keys"><tbody>${KEY_HELP.map(([k,v])=>`<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>
+    <p class="dlg-hint">If a shortcut clashes with your screen reader, use the always-visible “Accessibility Settings” and “Voice Controls” buttons at the top of every screen.</p></section>
+   <section aria-labelledby="hp3"><h3 id="hp3">Voice and typed commands</h3>
+    <p>Press the microphone in Voice Controls and say <b>one</b> command, or type it. Say the words naturally; you do not need to memorise them.</p>
+    ${VOICE_HELP.map(([t,l])=>`<h4>${t}</h4><ul class="cmds">${l.map(x=>`<li>“${x}”</li>`).join('')}</ul>`).join('')}</section>
+   <section aria-labelledby="hp4"><h3 id="hp4">Touch and mouse</h3>
+    <p>Tap or click a piece, then a highlighted square. Dragging is optional and off by default. Use <b>Cancel selection</b> to change your mind and <b>Undo last move</b> to take a move back.</p></section>
+   <p class="dlg-hint">AcChess is a proposed academic prototype. The opponent is simulated and nothing connects to Chess.com.</p>`;
 }
+function showHelp(section){
+  const dlg=openDialog({title:'Help, keys and commands',body:`<div class="help-body">${helpBodyHTML()}</div>`,
+    actions:[{label:'Show welcome tips on Home again',onClick:()=>{Store.del('acchess.welcome');say('Welcome tips will show on Home.',{kind:'info',force:true});if(CURRENT==='home')route(false)}}]});
+  if(section){setTimeout(()=>{const h=$('#'+({keys:'hp2',voice:'hp3'}[section]||'hp1'),dlg);if(h){h.scrollIntoView({block:'start'});h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}},60)}
+}
+function showKeyHelp(){showHelp('keys')}
 function openSearch(){
   const items=[
     ['Home','Dashboard',()=>navigate('home')],['Play menu','Play Chess options',()=>navigate('menu')],['Playing','Chess game board',()=>navigate('play')],
@@ -115,7 +132,8 @@ function openSearch(){
     ['Help and instructions','Welcome and navigation methods',()=>showHelp()],
     ['Toggle high contrast','Switch the high-contrast theme',()=>toggleSetting('contrast')],
     ['Toggle screen reader mode','Square announcements while moving',()=>toggleSetting('screenReader')],
-    ['Keyboard shortcuts','List of board keys',()=>showKeyHelp()]
+    ['Keyboard shortcuts','List of board keys',()=>showKeyHelp()],
+    ['Voice commands','Examples you can say or type',()=>showHelp('voice')]
   ];
   const dlg=openDialog({title:'Search AcChess',cancelLabel:'Close',
     body:`<label class="fld"><span>Search screens and settings</span><input id="srchIn" type="search" autocomplete="off" placeholder="e.g. puzzles, contrast"></label><ul class="srch" id="srchList"></ul>`});
@@ -187,29 +205,29 @@ function selectHTML(key,label,opts,desc){
 function a11yHTML(){
   const hap=Haptics.supported();
   return `
-  <header class="a11y-h"><div><h2 id="a11yT">${I.access(22)} Accessibility settings</h2>
-    <p>Changes apply immediately and stay on for this browser session. Nothing here requires a microphone, sound or vibration.</p></div>
-    <button type="button" class="btn icon" data-a11y-close aria-label="Close accessibility settings">${I.close(18)}</button></header>
+  <div class="a11y-h"><div><h2 id="a11yT">${I.access(22)} Accessibility settings</h2>
+    <p>Changes apply at once and are ${Store.persistent?'saved in this browser':'kept until you close this tab (your browser blocks saving)'}. Nothing here needs a microphone, sound or vibration.</p></div>
+    <button type="button" class="btn icon" data-a11y-close aria-label="Close accessibility settings">${I.close(18)}</button></div>
   <div class="a11y-body">
    <section aria-labelledby="s1"><h3 id="s1">Vision</h3>
     ${switchHTML('contrast','High contrast','Black and white theme with thick borders, bold pieces and a patterned board.')}
     ${rangeHTML('textSize','Text size',100,160,5,'%','Scales interface text.')}
-    ${rangeHTML('boardSize','Board size',60,130,5,'%','Scales the chessboard.')}
+    ${rangeHTML('boardSize','Board size',60,200,5,'%','Scales the chessboard, up to the width of your screen. Above 130% the side panels move below the board.')}
     ${selectHTML('boardTheme','Board theme',[['classic','Classic green and cream'],['hc','High contrast black and white'],['cb','Colour-blind safe blue and sand']],'The familiar green board is the default.')}
     ${selectHTML('pieceTheme','Piece theme',[['classic','Classic pieces'],['hc','High-contrast bold pieces'],['letters','Classic pieces with letter labels (K Q R B N P)']],'Letter labels help tell pieces apart without relying on shape.')}
     ${switchHTML('strongFocus','Strong focus indicators','Thicker, double-ring outline around the focused control or square.')}
     ${switchHTML('markers','Move indicators','Selected, legal-move, capture, check and last-move squares use shapes, patterns and text labels, not colour alone.')}
     ${switchHTML('reduceMotion','Reduced motion','Turns off animations and shortens delays.')}
    </section>
-   <section aria-labelledby="s2"><h3 id="s2">Nonvisual access</h3>
+   <section aria-labelledby="s2"><h3 id="s2">Nonvisual Access</h3>
     ${switchHTML('screenReader','Screen-reader compatibility mode','Announces each square as you move around the board and keeps the transcript visible. Works alongside your own screen reader.')}
     ${switchHTML('speakBoard',speechSupported()?'Spoken board descriptions':'Spoken board descriptions (not supported here)','Speaks square descriptions, board readings and answers to your questions using your browser’s speech synthesis.',
       `<button type="button" class="btn sm" data-test="speech">Test speech</button>`)}
     ${switchHTML('speech',speechSupported()?'Spoken game announcements':'Spoken game announcements (not supported here)','Speaks moves, check, results and error messages. A text transcript is always shown.')}
-    ${rangeHTML('rate','Speech rate',0.6,1.6,0.1,'×','Applies to all spoken output.')}
+    ${rangeHTML('rate','Speech rate',0.6,3,0.1,'×','Applies to all spoken output (0.6× slow to 3× very fast).')}
     ${selectHTML('verbosity','Announcement verbosity',[['minimal','Minimal — notation only'],['standard','Standard'],['detailed','Detailed — includes legal moves and side to move']],'How much each move and selection says.')}
    </section>
-   <section aria-labelledby="s3"><h3 id="s3">Input and motor accessibility</h3>
+   <section aria-labelledby="s3"><h3 id="s3">Input and Motor Accessibility</h3>
     ${switchHTML('voice','Voice control','Marks the microphone as in use. The microphone only starts when you press it, and typed commands always work.',
       `<button type="button" class="btn sm" data-open-voice>Open Voice Controls</button>`)}
     ${switchHTML('continuousListen','Continuous listening (optional)','One microphone session stays open for many commands, so the browser asks for permission only once. Speech that is not a command is ignored. Turns off after 5 minutes of silence, or say “stop listening”. Off by default.')}
@@ -220,9 +238,10 @@ function a11yHTML(){
     ${switchHTML('confirmActions','Confirm consequential actions','Asks before draw offers, undo and new game. Resignation always asks, even when this is off.')}
     ${switchHTML('untimed','Untimed play','Turns off the game clocks so there is no time limit.')}
    </section>
-   <section aria-labelledby="s4"><h3 id="s4">Audio and haptics</h3>
+   <section aria-labelledby="s4"><h3 id="s4">Audio and Haptics</h3>
     ${switchHTML('sound','Sound effects','Short tones for select, move, opponent move, illegal move, check and checkmate. Never plays on page load.',
       `<button type="button" class="btn sm" data-test="sound">Test sound</button>`)}
+    ${rangeHTML('volume','Volume',0,100,5,'%','Loudness of sound effects and spoken output (where your browser supports it).')}
     ${switchHTML('haptic','Haptic feedback','Vibration patterns for each chess event on devices that support it.',
       `<button type="button" class="btn sm" data-test="haptic">Test haptic feedback</button>`)}
     <p class="note" id="hapNote">Vibration API: <b>${hap?'available on this device':'not available on this device'}</b>${hap?'':' — a visual demonstration is shown instead and nothing is claimed to vibrate.'}</p>
@@ -231,7 +250,7 @@ function a11yHTML(){
     ${selectHTML('lowTimeAt','Warn me when this much time is left',[['120','2 minutes'],['60','1 minute'],['30','30 seconds'],['20','20 seconds'],['10','10 seconds']],'The final 10 seconds also tick once per second (sound on).')}
    </section>
   </div>
-  <footer class="a11y-f"><button type="button" class="btn" data-reset>Reset to defaults</button><button type="button" class="btn primary" data-a11y-close>Done</button></footer>`;
+  <footer class="a11y-f"><button type="button" class="btn" data-reset>Reset all to defaults</button><button type="button" class="btn primary" data-a11y-close>Done</button></footer>`;
 }
 const A11y={open:false,opener:null};
 function renderA11y(keepFocus){
@@ -254,7 +273,7 @@ function openA11y(opener){
 }
 function closeA11y(quiet){
   const el=$('#a11y');if(!el||!A11y.open)return;
-  A11y.open=false;el.hidden=true;document.body.classList.remove('a11y-open');
+  A11y.open=false;el.hidden=true;el.innerHTML='';document.body.classList.remove('a11y-open');
   const b=$('#btnA11y');if(b)b.setAttribute('aria-expanded','false');
   if(quiet===true)return;
   const o=A11y.opener;
@@ -305,28 +324,16 @@ function bindA11y(){
   settingSubs.push(()=>{if(A11y.open&&!($('#a11y').contains(document.activeElement)&&document.activeElement.type==='range'))renderA11y(true)});
 }
 
-/* ----- toolbar (quick toggles) ---------------------------------------- */
-function toolbarHTML(){
-  const t=(k,icon,label)=>`<button type="button" class="tg" data-tg="${k}" aria-pressed="${settingOn(k)}"><span class="tgi">${icon}</span><span>${label}</span><span class="st">${settingOn(k)?I.check(12)+' On':'Off'}</span></button>`;
-  return `<div class="atb" role="group" aria-label="Accessibility toolbar">
-    <span class="lbl">${I.access(18)} Accessibility</span>
-    ${t('screenReader',I.ear(18),'Screen reader')}${t('voice',I.mic(18),'Voice control')}${t('contrast',I.contrast(18),'High contrast')}
-    ${t('sound',I.sound(18),'Sound')}${t('speech',I.speaker(18),'Speech')}${t('haptic',I.vib(18),'Vibration')}
-    <button type="button" class="tg act" data-open-a11y>${I.gear(18,'currentColor')}<span>Settings</span></button>
-    <span class="hviz" id="hviz" aria-hidden="true"></span>
-  </div>`;
-}
+/* ----- quick-setting buttons on Home keep their state in sync ---------- */
 function refreshToolbars(){
-  $$('.atb').forEach(tb=>{
-    $$('[data-tg]',tb).forEach(b=>{
-      const k=b.dataset.tg;b.setAttribute('aria-pressed',String(settingOn(k)));
-      $('.st',b).innerHTML=settingOn(k)?I.check(12)+' On':'Off';
-    });
-  });
   $$('[data-qa]').forEach(b=>{const k=b.dataset.qa;b.setAttribute('aria-pressed',String(settingOn(k)));const st=$('.st',b);if(st)st.innerHTML=settingOn(k)?I.check(12)+' On':'Off'});
-  const note=$('#hapNote');if(note)note.hidden=false;
 }
 settingSubs.push(refreshToolbars);
+/* quick settings: one global bar at the top of every screen (the same switches as in Accessibility Settings) */
+function quickBarHTML(){
+  const t=(k,icon,label)=>`<button type="button" class="tg qb" data-qa="${k}" aria-pressed="${settingOn(k)}"><span class="tgi">${icon}</span><span class="ql">${label}</span><span class="st">${settingOn(k)?I.check(12)+' On':'Off'}</span></button>`;
+  return `<span class="qb-l">${I.access(16)} Quick settings</span>`+t('screenReader',I.ear(18),'Screen reader')+t('contrast',I.contrast(18),'High contrast')+t('sound',I.sound(18),'Sound')+t('speech',I.speaker(18),'Speech')+t('haptic',I.vib(18),'Vibration');
+}
 let hvT;
 fxSubs.add((kind,h)=>{
   const v=$('#hviz');if(!v||!h||!h.demo)return;
@@ -336,21 +343,11 @@ fxSubs.add((kind,h)=>{
 
 /* ----- assistive dock ------------------------------------------------- */
 function dockHTML(kind){
-  const ex={play:['Move e2 to e4','Knight to f3','Select e2','What is on e4','Read the board','Read legal moves','Offer draw'],
-    menu:['Select e2','Move e2 to e4','Read the board','Whose turn is it'],
-    puzzle:['Read the puzzle','Hint','Move f1 to f8','Rook to f8','Read legal moves'],
-    review:['Next move','Previous move','Read the board','What is on g4','First position']}[kind]||[];
-  const showUndo=kind==='play'||kind==='menu';
-  return `<aside class="dock" aria-label="AcChess assistive panel" id="dock">
-   <details class="dcard dcollapse" open>
-     <summary><h2 id="dk-st">${I.access(18)} Game status</h2></summary>
-     <p class="latest" id="dkLatest"><span class="sr-only">Latest announcement: </span><span id="dkLatestT">No announcements yet.</span></p>
-     <dl class="stat-dl" id="dkStatus"></dl>
-     <div class="btnrow" id="dkActions">
-       ${kind!=='review'?`<button type="button" class="btn js-cancel" id="bCancel">${I.close(14)} Cancel selection <kbd>Esc</kbd></button>`:''}
-       ${showUndo?`<button type="button" class="btn js-undo" id="bUndo">${I.undo(14)} Undo last move</button>`:''}
-     </div>
-   </details>
+  const stat=(kind==='play'||kind==='puzzle')?`<details class="dcard dcollapse" id="statCard" open>
+     <summary><h2 id="dk-s">${I.info(18)} Game status</h2></summary>
+     <dl class="stat-dl" id="dkStatus"></dl></details>`:'';
+  return `<aside class="dock" aria-label="Game status, voice and announcements" id="dock">
+   ${stat}
    <section class="dcard" aria-labelledby="dk-v">
      <h2 id="dk-v">${I.mic(18)} Voice control</h2>
      <p class="small muted">Speak or type one command at a time. The microphone never starts by itself.</p>
@@ -360,10 +357,11 @@ function dockHTML(kind){
        <dt>Result</dt><dd id="dkRes">—</dd>
      </dl>
    </section>
-   <details class="dcard dcollapse" open>
+   <details class="dcard dcollapse" id="annCard">
      <summary><h2 id="dk-a">${I.speaker(18)} Announcements</h2></summary>
+     <p class="latest" id="dkLatest"><span class="sr-only">Latest announcement: </span><span id="dkLatestT">No announcements yet.</span></p>
      <div class="btnrow"><button type="button" class="btn sm" id="aRepeat">Repeat last</button><button type="button" class="btn sm" id="aClear">Clear transcript</button>
-       <button type="button" class="btn sm" id="aKeys">${I.kbd(14)} Keys</button></div>
+       <button type="button" class="btn sm" id="aKeys">${I.kbd(14)} Keys and commands</button></div>
      <ol class="alog" id="aLog" aria-label="Announcement transcript"></ol>
    </details>
   </aside>`;
@@ -373,11 +371,24 @@ function logItemHTML(e){
   const lab={game:'Game',cmd:'Info',alert:'Alert',fx:'Feedback',focus:'Focus',info:'Info'}[e.kind]||'Info';
   return `<li class="k-${e.kind}${e.urgent?' urgent':''}"><time>${fmtTime(e.t)}</time><span class="kd">${e.kind==='alert'?'✖ ':''}${lab}</span><span class="tx">${esc(e.text)}</span>${e.spoken?'<span class="sp" title="Spoken aloud">'+I.sound(13)+'<span class="sr-only">spoken</span></span>':''}</li>`;
 }
+function boardActions(e,ctrlGetter){
+  const b=e.target.closest('button');if(!b)return false;
+  const C=ctrlGetter();
+  if(b.classList.contains('js-cancel')){if(C&&C.cancel){C.cancel('button')}return true}
+  if(b.classList.contains('js-undo')){
+    if(!C||!C.undo)return true;
+    if(!C.game.moves.length){say('There are no moves to undo.',{kind:'alert'});return true}
+    confirmAction({title:'Undo your last move?',message:'This takes back a completed move'+(C.opponent?' and the opponent’s reply':'')+'. It is different from cancelling a selection.',confirmLabel:'Undo move',onConfirm:()=>C.undo()});
+    return true;
+  }
+  return false;
+}
+function mountBoardbar(ctrlGetter){const bb=$('#boardbar');if(bb)bb.addEventListener('click',e=>boardActions(e,ctrlGetter))}
 function mountDock(kind,dispose,ctrlGetter){
+  mountBoardbar(ctrlGetter);
   const log=$('#aLog'),latest=$('#dkLatestT');
   if(!log)return;
-  const compact=matchMedia('(max-width:899px)').matches;      // phones/tablets: secondary cards start collapsed
-  $$('#dock .dcollapse').forEach(d=>{d.open=!compact});
+  const ac=$('#annCard');if(ac)ac.open=!!S.screenReader;          // progressive disclosure: transcript opens by itself only for screen-reader mode
   const redraw=()=>{log.innerHTML=Ann.log.slice(-60).map(logItemHTML).join('');log.scrollTop=log.scrollHeight};
   redraw();
   const last=Ann.log.filter(e=>e.kind!=='fx'&&e.kind!=='focus').slice(-1)[0];if(last)latest.textContent=last.text;
@@ -397,31 +408,28 @@ function mountDock(kind,dispose,ctrlGetter){
   dkPaint();Voice.subs.add(dkPaint);dispose.push(()=>Voice.subs.delete(dkPaint));
   const dockClick=e=>{
     const b=e.target.closest('button');if(!b)return;
-    const C=ctrlGetter();
-    if(b.classList.contains('js-cancel')&&C&&C.cancel){C.cancel('button')}
-    else if(b.classList.contains('js-undo')&&C&&C.undo){
-      if(!C.game.moves.length){say('There are no moves to undo.',{kind:'alert'});return}
-      confirmAction({title:'Undo your last move?',message:'This takes back a completed move'+(C.opponent?' and the opponent’s reply':'')+'. It is different from cancelling a selection.',confirmLabel:'Undo move',onConfirm:()=>C.undo()});
-    }
-    else if(b.id==='aRepeat'){
+    if(b.id==='aRepeat'){
       const l=Ann.log.filter(x=>x.kind!=='fx'&&x.kind!=='focus').slice(-1)[0];
       if(!l){say('Nothing to repeat yet.',{kind:'info'});return}
       if(!S.speech){say('Spoken game announcements are off, so the last message is shown as text only: '+l.text,{kind:'info',force:true});return}
       say(l.text,{kind:'info',force:true,live:false});
     }
     else if(b.id==='aClear'){Ann.log.length=0;log.innerHTML='';latest.textContent='Transcript cleared.'}
-    else if(b.id==='aKeys')showKeyHelp();
+    else if(b.id==='aKeys')showHelp('keys');
   };
   $('#dock').addEventListener('click',dockClick);
-  const bb=$('#boardbar');if(bb)bb.addEventListener('click',dockClick);
 }
-/* board actions shown directly under the board on phones (desktop keeps them in the status card) */
+/* board actions, directly under the board on every screen size (one consistent place) */
 function boardbarHTML(kind){
-  return `<div class="boardbar m-only" id="boardbar" role="group" aria-label="Board actions">
-    ${kind==='puzzle'?`<button type="button" class="btn js-hint" id="hintM">${I.bulb(18)} Hint</button>
-    <button type="button" class="btn js-retry" id="pRetryM">${I.restart(16)} Try again</button>`:''}
+  if(kind==='puzzle')return `<div class="boardbar" id="boardbar" role="group" aria-label="Puzzle actions">
+    <button type="button" class="btn js-hint" id="hintM">${I.bulb(18)} Hint</button>
+    <button type="button" class="btn js-retry" id="pRetryM">${I.restart(16)} Try again</button>
+    <button type="button" class="btn js-next" id="pNextM">${I.next(18)} Next puzzle</button>
     <button type="button" class="btn js-cancel" id="bCancelM">${I.close(14)} Cancel selection</button>
-    ${kind==='puzzle'?'':`<button type="button" class="btn js-undo" id="bUndoM">${I.undo(14)} Undo last move</button>`}
+  </div>`;
+  return `<div class="boardbar" id="boardbar" role="group" aria-label="Board actions">
+    <button type="button" class="btn js-cancel" id="bCancelM" title="Esc">${I.close(14)} Cancel selection</button>
+    <button type="button" class="btn js-undo" id="bUndoM">${I.undo(14)} Undo last move</button>
   </div>`;
 }
 function statusRowsHTML(rows){return rows.map(([k,v,cls])=>`<div><dt>${esc(k)}</dt><dd class="${cls||''}">${v}</dd></div>`).join('')}
@@ -431,21 +439,20 @@ function sidebarHTML(active){
   const a=(id,icon,label)=>`<li><a class="sb-item" href="#${id}" ${active===id?'aria-current="page"':''}><span class="sb-ico">${icon}</span><span>${label}</span></a></li>`;
   const bt=(act,icon,label,extra='')=>`<li><button type="button" class="sb-item" data-act="${act}" ${extra}><span class="sb-ico">${icon}</span><span>${label}</span></button></li>`;
   return `<nav id="sidebar" aria-label="Main navigation">
-    <a class="logo" href="#home" aria-label="AcChess — Play Without Barriers. Go to home">
+    <a class="logo" href="#home">
       ${sv(34,'0 0 34 34','<circle cx="15" cy="9" r="6" fill="#81b64c"/><path d="M9,16H21C20,20 24,24 26,30H4C6,24 10,20 9,16Z" fill="#81b64c"/><rect x="3" y="29" width="24" height="4" rx="2" fill="#6aa337"/>','aria-hidden="true"')}
-      <span class="lg"><span class="wm">Ac<em>Chess</em></span><small>Play Without Barriers</small></span></a>
+      <span class="lg"><span class="wm">Ac<em>Chess</em></span> <small>Play Without Barriers</small><span class="sr-only"> — home</span></span></a>
     <ul class="navlist">
       ${a('menu',I.play(30),'Play')}
       ${a('puzzle',I.puzzle(30),'Puzzles')}
       ${bt('learn',I.cap(30),'Learn')}
       <li><button type="button" class="sb-item" id="moreBtn" aria-expanded="false" aria-controls="moreList"><span class="sb-ico">${I.chev(18)}</span><span>More</span></button>
         <ul id="moreList" class="sublist" hidden>
-          ${a('review','','Game History')}${a('play','','Current game')}
+          ${a('review','','Game Review')}${a('play','','Current game')}
           <li><button type="button" class="sb-item sub" data-act="tournaments"><span>Tournaments</span></button></li>
           <li><button type="button" class="sb-item sub" data-act="variants"><span>Chess Variants</span></button></li>
         </ul></li>
       ${bt('trial',I.gem(28),'Free Trial','')}
-      <li class="sep"><button type="button" class="sb-item acc" data-open-a11y aria-keyshortcuts="Alt+A"><span class="sb-ico">${I.access(26)}</span><span>Accessibility</span></button></li>
     </ul>
     <div class="sb-bottom">
       <button type="button" class="sb-b" data-act="search"><span class="sb-ico">${I.search(24)}</span><span>Search</span></button>
@@ -498,8 +505,8 @@ function voiceExamples(){
 function voicePanelHTML(){
   const sup=Voice.supported;
   return `
-  <header class="vp-h"><h2 id="vpT">${I.mic(20)} Voice Controls</h2>
-    <button type="button" class="btn icon" data-voice-close aria-label="Close Voice Controls">${I.close(18)}</button></header>
+  <div class="vp-h"><h2 id="vpT">${I.mic(20)} Voice Controls</h2>
+    <button type="button" class="btn icon" data-voice-close aria-label="Close Voice Controls">${I.close(18)}</button></div>
   <div class="vp-b">
     <p class="vp-help" id="vpHelp">Press the microphone, wait for “Listening”, then say <b>one</b> command. You can also type a command below.</p>
     <p class="vstate" id="vState" aria-hidden="true"></p>
@@ -562,7 +569,7 @@ function openVoice(opener){
 function closeVoice(quiet){
   const el=$('#voicePanel');if(!el||!VoiceUI.open)return;
   if(Voice.listening||Voice.preparing)Voice.stop();
-  VoiceUI.open=false;el.hidden=true;document.body.classList.remove('voice-open');
+  VoiceUI.open=false;el.hidden=true;el.innerHTML='';document.body.classList.remove('voice-open');
   const b=$('#btnVoice');if(b)b.setAttribute('aria-expanded','false');
   if(quiet===true)return;
   const o=VoiceUI.opener;
@@ -614,25 +621,25 @@ function welcomeBodyHTML(){
     <ul class="welcome-list">${WELCOME_ITEMS.map(([k,a,b])=>`<li class="w-${k}"><b>${a}</b> ${b}</li>`).join('')}</ul>
     <p class="dlg-hint">AcChess is a proposed academic prototype. The opponent is simulated and nothing connects to Chess.com.</p>`;
 }
-function welcomeDismissed(){if(/[?&]welcome=off\b/.test(location.search))return true;try{return sessionStorage.getItem('acchess.welcome')==='1'}catch(e){return false}}
+function welcomeDismissed(){if(/[?&]welcome=off\b/.test(location.search))return true;return Store.get('acchess.welcome')==='1'}
 function mountWelcome(main){
-  if(welcomeDismissed())return;
-  main.insertAdjacentHTML('afterbegin',`<section class="welcome" id="welcome" aria-labelledby="welH">
-    <h2 id="welH">Welcome to AcChess</h2>${welcomeBodyHTML()}
+  const slot=$('#welcomeSlot',main);
+  if(!slot||welcomeDismissed())return;
+  slot.innerHTML=`<section class="welcome" id="welcome" aria-labelledby="welH">
+    <h2 id="welH">New here? Three ways to play</h2>
+    <ul class="wel3">
+      <li><b>Touch or mouse</b><span>Tap a piece, then a highlighted square.</span></li>
+      <li><b>Keyboard</b><span>Arrow keys and Enter on the board. Press <kbd>?</kbd> for all keys.</span></li>
+      <li><b>Voice</b><span>Open Voice Controls, then say “move e2 to e4”. The microphone only starts when you press it.</span></li></ul>
     <div class="btnrow"><button type="button" class="btn primary" id="welOk">Got it</button>
-      <button type="button" class="btn desk-only" id="welKeys">Keyboard shortcuts</button>
-      <button type="button" class="btn desk-only" data-open-a11y>Accessibility Settings</button>
-      <button type="button" class="btn desk-only" data-open-voice>Open Voice Controls</button></div></section>`);
+      <button type="button" class="btn" id="welKeys">Keys and voice commands</button></div></section>`;
   $('#welOk',main).addEventListener('click',()=>{
-    try{sessionStorage.setItem('acchess.welcome','1')}catch(e){}
+    Store.set('acchess.welcome','1');
     $('#welcome').remove();
-    say('Welcome message closed. You can reopen the instructions with the Help button.',{kind:'info',force:true});
+    say('Welcome tips closed. They stay closed on this device. Reopen them from the Help button.',{kind:'info',force:true});
     const h=$('h1',main);if(h)h.focus({preventScroll:true});
   });
-  $('#welKeys',main).addEventListener('click',()=>showKeyHelp());
-}
-function showHelp(){
-  infoDialog('Welcome to AcChess',welcomeBodyHTML(),[{label:'Keyboard shortcuts',onClick:()=>showKeyHelp()}]);
+  $('#welKeys',main).addEventListener('click',()=>showHelp());
 }
 const isTypingTarget=t=>!!t&&(t.isContentEditable||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||
   (t.tagName==='INPUT'&&!/^(checkbox|radio|range|button|submit|reset)$/i.test(t.type||'text')));
@@ -671,6 +678,8 @@ function bindPushToTalk(){
   });
 }
 function bindHeader(){
+  $('#quickbar').innerHTML=quickBarHTML();
+  {const hv=document.createElement('div');hv.id='hviz';hv.className='hviz';hv.setAttribute('aria-hidden','true');document.body.appendChild(hv)}
   bindPushToTalk();
   bindViewport();
   $('#btnMore').addEventListener('click',e=>openMore(e.currentTarget));

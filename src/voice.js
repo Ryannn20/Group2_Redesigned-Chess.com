@@ -135,6 +135,8 @@ function parseCommand(raw){
   if(m(/\b(new game|reset|restart|start over|try again)\b/))return {...R,intent:'reset'};
   if(m(/\b(undo|take back|takeback|take it back)\b/))return {...R,intent:'undo'};
   if(m(/\b(cancel|clear|deselect|unselect|drop|put down)\b/)&&!m(/\bmove\b.*\bSQ\b/))return {...R,intent:'cancel'};
+  if(m(/\b(flip|rotate|turn around|switch sides)\b.*\bboard\b|\bflip\b/))return {...R,intent:'flip'};
+  if(m(/\b(next|another|new) puzzle\b/)&&!sq.length)return {...R,intent:'next-puzzle'};
   if(m(/\b(hint|clue)\b/))return {...R,intent:'hint'};
   if(m(/\b(first|start)\b.*\b(move|position)\b/)&&!sq.length)return {...R,intent:'rv-first'};
   if(m(/\b(last|final|latest|end)\b.*\b(position)\b/)&&!sq.length)return {...R,intent:'rv-last'};
@@ -416,7 +418,7 @@ const Voice={
       }
       case'size':{
         if(!c.key)return fail('Say “increase text size” or “increase board size”.');
-        const key=c.key,min=key==='textSize'?100:60,max=key==='textSize'?160:130,cur=S[key];
+        const key=c.key,min=key==='textSize'?100:60,max=key==='textSize'?160:200,cur=S[key];
         const nv=Math.max(min,Math.min(max,cur+(c.dir>0?10:-10)));
         const name=key==='textSize'?'Text size':'Board size';
         if(nv===cur){const m=`${name} is already at its ${c.dir>0?'maximum':'minimum'}: ${cur} percent.`;say(m,{kind:'info',force:true});return done(m,`${c.dir>0?'Increase':'Decrease'} ${name.toLowerCase()}`)}
@@ -513,6 +515,15 @@ const Voice={
         {const asked=confirmAction({title:'Undo your last move?',message:'This takes back a completed move'+(C.opponent?' and the opponent’s reply':'')+'. It is different from cancelling a selection.',confirmLabel:'Undo move',
           onConfirm:()=>C.undo()});
         return asked?{ok:true,confirm:true,msg:'Waiting for confirmation: undo the last move. Say “confirm” or “cancel”.',understood:'Undo last move'}:{ok:true,msg:'Last move undone.',understood:'Undo last move'}}
+      }
+      case'flip':
+        if(!C.board)return fail('There is no board to flip on this screen.');
+        C.board.setFlipped(!C.board.flipped);
+        return done(`Board flipped. ${C.board.flipped?'Black':'White'} is now at the bottom.`,'Flip board');
+      case'next-puzzle':{
+        const nb=$('.js-next');
+        if(!C.puzzle||!nb)return fail('Next puzzle is only available on the Puzzles screen.');
+        nb.click();return done('Next puzzle.','Next puzzle');
       }
       case'hint':
         if(!C.puzzle)return fail('Hints are only available on the puzzle screen.');

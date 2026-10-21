@@ -20,20 +20,20 @@
 </defs></svg>
 
 <header id="protobar">
-  <div class="brand"><b>Ac<em>Chess</em><span class="brand-tag"> — Play Without Barriers</span></b><span>An accessible, multimodal redesign of Chess.com.</span></div>
+  <div class="brand"><b>Ac<em>Chess</em><span class="brand-tag"> — Play Without Barriers</span></b><span>Academic prototype · not affiliated with Chess.com</span></div>
   <div class="a11y-entry" id="a11yEntry" role="group" aria-label="Accessibility and Voice Controls">
-    <button type="button" id="btnA11y" class="pb pb-main" aria-label="Accessibility Settings, shortcut Alt plus Shift plus A" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+A">
+    <button type="button" id="btnA11y" class="pb pb-main" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+A">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5" fill="currentColor"/><path d="M4,8.5C8,10 16,10 20,8.5M12,9.5V14M12,14L8,21M12,14L16,21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="pb-t"><span class="pb-l" aria-hidden="true">Accessibility </span>Settings</span><kbd class="pb-k" aria-hidden="true">Alt+Shift+A</kbd></button>
-    <button type="button" id="btnVoice" class="pb pb-main" aria-label="Open Voice Controls, shortcut Alt plus Shift plus V" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+V">
+      <span class="pb-t"><span class="pb-l">Accessibility </span>Settings</span><kbd class="pb-k">Alt+Shift+A</kbd></button>
+    <button type="button" id="btnVoice" class="pb pb-main" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+V">
       <svg width="22" height="22" viewBox="0 0 26 26" aria-hidden="true"><rect x="9" y="2" width="8" height="14" rx="4" fill="currentColor"/><path d="M5,12C5,17 8.5,20 13,20C17.5,20 21,17 21,12M13,20V24M9,24H17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-      <span class="pb-t"><span class="pb-l" aria-hidden="true">Open </span>Voice<span class="pb-l" aria-hidden="true"> Controls</span></span><kbd class="pb-k" aria-hidden="true">Alt+Shift+V</kbd></button>
+      <span class="pb-t"><span class="pb-l">Open </span>Voice<span class="pb-l"> Controls</span></span><kbd class="pb-k">Alt+Shift+V</kbd></button>
     <button type="button" id="btnHelp" class="pb" aria-label="Help and instructions">
       <span class="pb-q" aria-hidden="true">?</span><span class="pb-t">Help</span></button>
     <button type="button" id="btnMore" class="pb" aria-label="More options" aria-haspopup="dialog"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,6H20M4,12H20M4,18H20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="pb-t">More</span></button>
   </div>
 </header>
-<div id="protostrip">
+<aside id="protostrip" aria-label="Prototype screens and notice">
   <nav id="screens" aria-label="Prototype screens">
     <a href="#home" data-s="home">1 · Home</a>
     <a href="#play" data-s="play">2 · Playing</a>
@@ -42,8 +42,9 @@
     <a href="#menu" data-s="menu">5 · Play Menu</a>
   </nav>
   <a class="orig" href="chesscom-current.html">Compare: current Chess.com UI recreation</a>
-  <span class="disc">Proposed academic prototype · not an official Chess.com product · no connection to Chess.com servers</span>
-</div>
+  <span class="disc">Academic prototype · not affiliated with Chess.com · works offline</span>
+  <div id="quickbar" role="group" aria-label="Quick settings"></div>
+</aside>
 
 <div id="app">
   <div id="sidebarHost"></div>
@@ -57,7 +58,7 @@
     <a href="#puzzle" data-s="puzzle"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,8H9C9,4 15,4 15,8H20V13C24,13 24,19 20,19V21H4V8Z" fill="currentColor" transform="scale(.9) translate(1.5 .5)"/></svg><span>Puzzle</span></a>
     <a href="#menu" data-s="menu" aria-label="Play menu"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,6H20M4,12H20M4,18H20" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round"/></svg><span>Menu</span></a>
 </nav>
-<aside id="a11y" role="dialog" aria-modal="false" aria-labelledby="a11yT" hidden></aside>
+<div id="a11y" role="dialog" aria-modal="false" aria-labelledby="a11yT" hidden></div>
 <section id="voicePanel" role="dialog" aria-modal="false" aria-labelledby="vpT" hidden></section>
 <div id="live-polite" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="live-assertive" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>

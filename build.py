@@ -29,7 +29,8 @@ js = "\n".join([
     (src / "screens.js").read_text(encoding="utf-8"),
 ])
 html = (src / "body.html").read_text(encoding="utf-8")
-html = html.replace("/*__CSS__*/", (src / "style.css").read_text(encoding="utf-8"))
+css = (src / "style.css").read_text(encoding="utf-8") + chr(10) + (src / "phase2.css").read_text(encoding="utf-8")
+html = html.replace("/*__CSS__*/", css)
 html = html.replace("/*__JS__*/", js)
 (root / "index.html").write_text(html, encoding="utf-8")
 print("index.html", len(html) // 1024, "KB")

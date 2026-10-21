@@ -28,14 +28,23 @@ const DEFAULTS={
   screenReader:false, voice:false, keyboardNav:true,
   contrast:false, boardTheme:'classic', boardSize:100, textSize:100, strongFocus:false, markers:true, reduceMotion:REDUCED_OS,
   sound:true, speech:false, speakBoard:false, rate:1, verbosity:'standard',
-  haptic:false,
+  haptic:false, volume:80,
   pieceTheme:'classic', clickToMove:true, largeTargets:false, confirmActions:true, untimed:false, continuousListen:false,
   spaceTalk:true, lowTime:true, lowTimeAt:60
 };
+/* Preferences are saved in the browser (localStorage; falls back to sessionStorage, then to memory).
+   Nothing leaves the device. "Reset to defaults" in Accessibility Settings clears them. */
+const Store={
+  mem:{},
+  get(k){try{const v=localStorage.getItem(k);if(v!==null)return v}catch(e){}try{const v=sessionStorage.getItem(k);if(v!==null)return v}catch(e){}return k in this.mem?this.mem[k]:null},
+  set(k,v){this.mem[k]=v;try{localStorage.setItem(k,v);return true}catch(e){}try{sessionStorage.setItem(k,v)}catch(e2){}return false},
+  del(k){delete this.mem[k];try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}},
+  get persistent(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
+};
 let S=Object.assign({},DEFAULTS);
-try{const raw=sessionStorage.getItem('acchess.settings');if(raw)S=Object.assign({},DEFAULTS,JSON.parse(raw))}catch(e){}
+try{const raw=Store.get('acchess.settings');if(raw)S=Object.assign({},DEFAULTS,JSON.parse(raw))}catch(e){}
 const settingSubs=[];
-function saveSettings(){try{sessionStorage.setItem('acchess.settings',JSON.stringify(S))}catch(e){}}
+function saveSettings(){Store.set('acchess.settings',JSON.stringify(S))}
 function applySettings(){
   const h=document.documentElement;
   h.dataset.contrast=S.contrast?'high':'normal';
@@ -49,6 +58,7 @@ function applySettings(){
   h.dataset.text=S.textSize>=130?'large':'normal';
   h.style.setProperty('--ts',S.textSize/100);
   h.style.setProperty('--bs',S.boardSize/100);
+  h.dataset.bigboard=S.boardSize>130?'on':'off';
 }
 function setSetting(k,v){S[k]=v;saveSettings();applySettings();settingSubs.forEach(fn=>fn(k,v))}
 function resetSettings(){S=Object.assign({},DEFAULTS);saveSettings();applySettings();settingSubs.forEach(fn=>fn('*',null))}
@@ -80,7 +90,7 @@ function speak(text,urgent,kind,done){
   try{
     const ss=window.speechSynthesis;
     if(urgent||ss.pending)ss.cancel();
-    const u=new SpeechSynthesisUtterance(text);u.rate=S.rate;u.lang='en-US';
+    const u=new SpeechSynthesisUtterance(text);u.rate=S.rate;u.lang='en-US';u.volume=Math.max(0,Math.min(1,S.volume/100));
     let fired=false;const fin=()=>{if(!fired){fired=true;done&&done()}};
     const ttsEnd=()=>{if(typeof Voice!=='undefined'){Voice.ttsBusy=false;Voice.ttsUntil=Date.now()+900}fin()};
     u.onstart=()=>{if(typeof Voice!=='undefined')Voice.ttsBusy=true};
@@ -139,7 +149,8 @@ const Sfx={
     (this.PATTERNS[kind]||this.PATTERNS.select).forEach(([f,d,type])=>{
       const o=c.createOscillator(),g=c.createGain();
       o.type=type;o.frequency.value=f;
-      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+      const peak=Math.max(.0002,.15*(S.volume/100));
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
       o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02);t+=d*.9;
     });
     return true;

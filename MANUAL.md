@@ -14,8 +14,8 @@ This manual describes every accessibility feature and how to try it. It covers t
 | **Best way to start (microphone asked only once)** | **Double-click `start-acchess.bat`** in this folder. It starts a tiny local server and opens `http://localhost:5188/`. Chrome and Edge remember your microphone choice for `localhost`, so you are asked **once** (choose *Allow*, not *Allow this time*). Close the minimized "AcChess local server" window to stop it. Needs Python. |
 | **Why does opening `index.html` directly ask every time?** | A page opened from disk (`file://`) has no stable "site", so browsers cannot remember the microphone permission and ask on every start. This is a browser rule, not something the page can change. The Voice Controls panel shows the current permission state and this tip. Typed commands never need permission. |
 | **Compare with the original** | The link *"Compare: current Chess.com UI recreation"* opens `chesscom-current.html`. |
-| **Switch screens** | Numbered links under the header (**Home, Playing, Game Review, Puzzle, Play Menu**), the sidebar, or buttons inside each screen. |
-| **Session memory** | Settings last for the browser session (until the tab closes). **Reset to defaults** is in the settings panel. |
+| **Switch screens** | Numbered links under the header (**Home, Playing, Game Review, Puzzle, Play Menu**), the sidebar, the bottom bar on phones, or buttons inside each screen. |
+| **Saved preferences** | Settings and the dismissed welcome tips are saved in this browser (localStorage) and survive reloads. Evaluation records are saved the same way. Nothing is sent anywhere. **Reset all to defaults** is in the settings panel. If a browser blocks storage you are told, and settings last only until the tab closes. |
 
 **Defaults:** Sound effects *on* (silent until you interact), spoken output *off*, vibration *off*, screen reader mode *off*, larger targets *off*, click-to-move *on*, confirmations *on*. **The microphone never starts by itself.**
 
@@ -23,7 +23,7 @@ This manual describes every accessibility feature and how to try it. It covers t
 1. **Skip links** appear on the first **Tab**: *Skip to main content* and *Skip to Accessibility and Voice Controls*.
 2. A **persistent header** on all five screens, always visible without scrolling:
    **Accessibility Settings** (Alt + Shift + A) · **Open Voice Controls** (Alt + Shift + V) · **Help**.
-3. A short **welcome message** explaining the navigation methods (dismiss with *Got it*; reopen any time with **Help**).
+3. On **Home only**, a short **“Three ways to play”** card (touch or mouse, keyboard, voice). Dismiss it with *Got it*; it stays dismissed on this device. **Help → Show welcome tips on Home again** brings it back.
 
 > If Alt + Shift is used by your screen reader or your Windows keyboard-layout switcher, ignore the shortcuts — the two header buttons do exactly the same thing.
 
@@ -35,21 +35,21 @@ The same prototype adapts to the screen. Resize the browser window, or open it o
 
 | Screen width | Layout |
 |---|---|
-| **≥ 1180 px** | Sidebar + board + game panel + assistive panel (three columns, up to 1640 px; two columns below that) |
-| **900 – 1179 px** (tablet landscape) | Sidebar + board + panel side by side; assistive cards stack under the panel |
+| **≥ 1180 px** | Sidebar + two columns: **board column** (status, players, board, Cancel / Undo) and **side column** (move history and game info, move navigation, voice launcher, announcements) |
+| **900 – 1179 px** (tablet landscape) | The same two columns, narrower; the board stays as large as the space allows |
 | **< 900 px** (tablet portrait, phones) | One column. The sidebar is replaced by a **top bar** (AcChess · **Settings** · **Voice** · **More**) and a **bottom bar** (Home · Playing · Review · Puzzle · Menu) |
 
 On phones:
 - **More** (top right) holds Learn, Tournaments, Chess Variants, Free Trial, Search, Profile, Friends, Messages, Notifications, Help and Keyboard shortcuts.
 - **Settings** opens a full-width bottom sheet with a **Done** button; **Voice** opens a compact bottom sheet that moves above the on-screen keyboard.
-- **Playing:** status strip (whose turn, last move) → opponent + clock → board → you + clock → **Cancel selection / Undo last move** → collapsible **Moves and game info** (history buttons, Draw, Resign, Flip always visible).
-- **Game Review:** status strip → board (evaluation bar becomes a horizontal strip) → **Previous / Next** buttons directly below the board.
-- **Puzzle:** objective above the board → **Hint / Try again / Cancel selection** directly below it.
-- **Play Menu:** the menu comes first, large touch rows, preview board below.
+- **Playing:** status strip (whose turn, last move, errors) → opponent + clock → board → you + clock → **Cancel selection / Undo last move** → collapsible **Move history and game info** (history buttons, Offer draw, Resign, Flip stay visible).
+- **Game Review:** status strip → board (evaluation bar becomes a horizontal strip) → **First / Previous / Next / Last** buttons directly below the board → timeline, explanation, graph.
+- **Puzzle:** objective and whose turn above the board → **Hint / Try again / Next puzzle / Cancel selection** directly below it → feedback card and progress.
+- **Play Menu:** a **Back** button and five labelled groups come first, then the practice board.
 - Tap a piece, then tap a highlighted square. No dragging is needed (drag-and-drop stays optional, off by default).
 - Add `?welcome=off` to the address to hide the welcome banner (handy for demos).
 
-Test results and what still needs real-device testing: see `RESPONSIVE-TEST-CHECKLIST.md`.
+It has only been checked with emulated screen sizes in desktop Chrome; real phones and tablets still need testing.
 
 ---
 
@@ -60,8 +60,9 @@ Test results and what still needs real-device testing: see `RESPONSIVE-TEST-CHEC
 | **Skip to main content** | Reload, press **Tab** once, press **Enter**. Focus jumps to the page content. |
 | **Accessibility and Voice Controls entry** | Press **Tab** twice, **Enter** — focus lands on the *Accessibility Settings* button. |
 | **Persistent buttons** | Scroll down on any screen; the header (with both buttons) stays on top. |
+| **Quick settings bar** | Directly under the header on **every** screen: **Screen reader · High contrast · Sound · Speech · Vibration**. Each shows On/Off in words. They are the same switches as in Accessibility Settings. On phones they sit in one row of five. |
 | **Alt + Shift + A / V** | Press from anywhere; press again to close. They are ignored while you are typing in a text box. |
-| **Welcome / Help** | **Help** button → short instructions and a link to all keyboard shortcuts. |
+| **Help** | **Help** button (or **?** on the board) → one dialog with Getting started, Keyboard shortcuts, Voice and typed commands, and Touch and mouse. Always available, on every screen. |
 | **Spoken/announced welcome** | A live-region message announces the shortcuts on load (screen readers that read live regions). |
 
 Opening either panel **moves focus into it**, **announces** it, and **Esc** closes it and **returns focus** to the button you used. Opening one panel closes the other so the board stays visible.
@@ -70,30 +71,30 @@ Opening either panel **moves focus into it**, **announces** it, and **Esc** clos
 
 ## 2. Accessibility Settings (four categories)
 
-Open with the header button, **Alt + Shift + A**, the sidebar *Accessibility* button, or say *"Open accessibility settings"*. Every switch shows a visible **On / Off** label plus a ✓ (never colour only).
+Open with the header button, **Alt + Shift + A**, the gear in the sidebar, the Home *All settings* button, or say *"Open accessibility settings"*. Every switch shows a visible **On / Off** label plus a ✓ (never colour only).
 
 ### Vision
 | Setting | What it does |
 |---|---|
 | **High contrast** | Black/white UI with thick borders, yellow accents, bold black-and-white pieces and a hatched board. |
 | **Text size** | 100 %–160 % interface text. |
-| **Board size** | 60 %–130 % of the fitted board. |
+| **Board size** | 60 %–200 % of the fitted board, limited by the width of your screen. Above 130 % the side panels move below the board so it can use the full width. |
 | **Board theme** | Classic green & cream (default) · High-contrast black & white · Colour-blind-safe blue & sand. |
 | **Piece theme** | Classic · High-contrast bold · Classic with **letter labels** (K Q R B N P). |
 | **Strong focus indicators** | Thicker double-ring outline on the focused control or square. |
 | **Move indicators** | Selected, legal, capture, check and last-move squares use shapes, patterns and text chips (SELECTED, CHECK, from, to, HINT) — not colour alone. |
 | **Reduced motion** | No animations; shorter delays (starts from your OS preference). |
 
-### Nonvisual access
+### Nonvisual Access
 | Setting | What it does |
 |---|---|
 | **Screen-reader compatibility mode** | Announces each square as you move; keeps the transcript visible. Works alongside your own screen reader. |
 | **Spoken board descriptions** | Speaks square descriptions, board readings and answers to your questions (browser speech synthesis). *Test speech* button. |
 | **Spoken game announcements** | Speaks moves, check, results and error messages. |
-| **Speech rate** | 0.6× – 1.6×. |
+| **Speech rate** | 0.6× – 3×. |
 | **Announcement verbosity** | Minimal (notation) · Standard · Detailed (adds legal moves and side to move). |
 
-### Input and motor accessibility
+### Input and Motor Accessibility
 | Setting | What it does |
 |---|---|
 | **Voice control** | Marks voice input as in use; *Open Voice Controls* button. |
@@ -105,10 +106,11 @@ Open with the header button, **Alt + Shift + A**, the sidebar *Accessibility* bu
 | **Untimed play** | Turns the game clocks off — no time limit. |
 | **Spacebar push-to-talk** | On by default. Press **Space** (with the board or page focused), wait for “Listening”, then say your move. When on, use **Enter** to select squares. Turn off to make Space act like Enter again. |
 
-### Audio and haptics
+### Audio and Haptics
 | Setting | What it does |
 |---|---|
 | **Sound effects** | Tones for select, move, opponent move, illegal move, check, checkmate. *Test sound* button. |
+| **Volume** | 0–100 %. Scales the sound effects and, where the browser supports it, spoken output. |
 | **Haptic feedback** | Vibration patterns on supported devices; on desktops a **visual demonstration** is shown and nothing is claimed to vibrate. *Test haptic feedback* button. |
 | **Low-time warning** | On by default. Visual, spoken/live-region, audible and haptic warnings when a clock runs low (see section 3b). *Test low-time warning* button. |
 | **Warn me when this much time is left** | 2 minutes · **1 minute (default)** · 30 s · 20 s · 10 s. |
@@ -157,7 +159,7 @@ Everything you can reach with mouse, touch or keyboard can be reached by voice, 
 |---|---|
 | Know where you are | "Where am I?", "What's on this screen?", "Read the headings" |
 | Hear what is available | "What can I do here?", "List controls", then "More" for the next 8 |
-| Go to a screen | "Go to home", "Go to play" (Play menu), "Go to playing" (current game), "Go to puzzles", "Open game history" / "game review" |
+| Go to a screen | "Go to home", "Go to play menu", "Go to playing" (current game), "Go to puzzles", "Go to game review" |
 | Open site sections | "Go to learn", "Open tournaments", "Chess variants", "Free trial", "Search", "Open my profile", "Friends", "Messages", "Notifications" |
 | Search | "Search for contrast" (opens Search with the results read out) |
 | Press any control by name | "Press play chess", "Click solve puzzles", "Choose five minutes", "Press review game", "Press challenge", "Press dismiss recommended match" — or just say its name, e.g. "Start lesson" |
@@ -179,8 +181,8 @@ Names are matched forgivingly ("five minutes" = **5 min**, "the" and "button" ar
 | Legal moves | "Read legal moves", "Legal moves for g1" |
 | Cancel vs undo | "Cancel selection" (drops a selection, no move) · "Undo" (takes back a completed move, asks to confirm) |
 | History / review | "Previous move", "Next move", "First position", "Last position" (while "Go back" means the previous *screen*) |
-| Game actions | "Offer draw", "Resign", "New game" — each asks for confirmation |
-| Puzzle | "Hint", "Read the puzzle" |
+| Game actions | "Offer draw", "Resign", "New game" — each asks for confirmation; "Flip the board" |
+| Puzzle | "Hint", "Try again", "Next puzzle", "Read the puzzle" |
 | Confirm | "Confirm" / "Yes", "Cancel" / "No" |
 | Other | "Help", "Stop" (stops speech) |
 
@@ -225,7 +227,7 @@ All descriptions are generated from the actual position — nothing is pre-writt
 | Task | How |
 |---|---|
 | Enlarge | Settings → **Text size**, **Board size**; browser zoom (Ctrl + +) also works without clipping or hidden controls. |
-| High contrast | Header → *Accessibility Settings* → High contrast, or say *"Enable high contrast"*, or the toolbar toggle. |
+| High contrast | Header → *Accessibility Settings* → High contrast, or say *"Enable high contrast"*, or the *Quick settings* bar at the top of every screen. |
 | Tell pieces apart | Piece theme → *High-contrast bold* or *Letter labels*. |
 | See states without colour | Move indicators: **SELECTED** chip + double ring; legal moves = black dot with white ring, captures = hatched double ring; **CHECK** chip + hatching; last move = from/to chips + dashed/solid inner borders. |
 | Focus | **Strong focus indicators**; the keyboard cursor square always shows a dashed ring. |
@@ -250,13 +252,13 @@ All descriptions are generated from the actual position — nothing is pre-writt
 
 ## 7. Screens
 
-| Screen | What to try |
-|---|---|
-| **1 Home** | Quick-access row (*Accessibility Settings*, *Open Voice Controls*, Screen reader, High contrast, Sound, Speech); big **Play Chess** button with time control; calm cards for Puzzles / Lessons / Bots; Recommended Match (dismissible); Game History → review; Daily Puzzle. |
-| **2 Playing** | Full game vs a **simulated** opponent: board, clocks (or *No limit*), moves list, history buttons, draw/resign/flip, status card with **Cancel selection** and **Undo last move**, announcement transcript. |
-| **3 Game Review** | Sample game with step controls, spoken move descriptions, arrows/highlights described in text, evaluation graph with a text alternative. *All marks are pre-written sample data — no engine.* |
-| **4 Puzzle** | Two built-in puzzles, graded hints (**H**), wrong moves announced and taken back, solved state with sound/announcement. |
-| **5 Play menu** | Accessibility card first, grouped actions, **↑/↓** moves between items, rule-enforced preview board. |
+| Screen | Primary task | What to try |
+|---|---|---|
+| **1 Home** | Start or continue a game | One green action (**Start playing**, or **Continue game** when a game is in progress, with **Start a new game** as the quiet second choice). Three cards: **Play Chess** (time control), **Puzzles**, **Game Review**. A collapsed *More* section holds the sample game, the daily puzzle and a plain statement of what is not available. |
+| **2 Playing** | Play a move | Status strip → opponent → **board** → you → **Cancel selection / Undo last move**. Side column: **Moves** and **Game info** tabs, move navigation, Offer draw / Resign / Flip, the **Game status** card (turn, selected piece, last move, number of legal moves, check and errors), the Voice control card, and a collapsed *Announcements* card (opens by itself in screen-reader mode). Try an illegal move: the target square is hatched and tagged ILLEGAL, the strip explains why, and nothing changes. |
+| **3 Game Review** | Understand what happened | Board → **First / Previous / Next / Last** → *Move timeline* → *What is on the board* (position, sample commentary, highlights and arrows in words, sample evaluation) → evaluation graph with a text version. **Jump to key moment** goes to the sample blunder. Everything is labelled **SAMPLE**; no engine is connected. |
+| **4 Puzzle** | Find the one move | Objective strip (puzzle, whose turn) → board → **Hint 0/3 / Try again / Next puzzle / Cancel selection** → feedback card (✔ Solved / ✖ Not the move, with words), the hints you have used, progress bar and a list to switch puzzles. The **Game status** card also lists the puzzle, task, selection, result and hints used. A wrong move is announced, then taken back, and you stay on the same puzzle. |
+| **5 Play menu** | Find a feature | **Back**, then groups: Playing options · Learning and practice · Game Review · Accessibility. A collapsed *Not available in this prototype* list explains each online mode. A practice board sits beside (or below) the list. |
 
 ---
 
@@ -276,6 +278,8 @@ All descriptions are generated from the actual position — nothing is pre-writt
 ## 9. What is real and what is simulated
 
 - **Real:** the chess rules engine (legal moves, check, checkmate, stalemate, castling, en passant, promotion — verified with standard perft test positions), the board, keyboard/voice/typed input, settings, live-region announcements, sound tones, browser speech synthesis and recognition **where the browser supports them**, vibration **where the device supports it**.
-- **Simulated:** the opponent (a scripted move picker — not an engine, not a person), draw replies (first declined, second accepted), review marks/graph/accuracy (sample data), only two puzzles, the Chat/Players/Tournaments/Lessons areas (explained in dialogs), no accounts or multiplayer.
+- **Simulated:** the opponent (a scripted move picker — not an engine, not a person), draw replies (first declined, second accepted), review marks, commentary and graph (sample data), only two puzzles, the online modes listed under *Not available in this prototype* (explained in dialogs), no accounts or multiplayer.
 - **Browser dependent:** speech recognition (Chrome/Edge, usually needs internet and microphone permission), speech voices, vibration (phones/tablets).
-- **Testing note:** the behaviours above were checked with automated browser interaction tests (keyboard, simulated speech recognizer, typed commands, settings, resizing). **No formal testing with blind, low-vision or motor-impaired participants has been done**, and the prototype has not been verified with specific screen readers (NVDA, JAWS, VoiceOver, TalkBack).
+- **Testing note:** the behaviours above were checked with automated browser tests in Chrome (keyboard, mocked speech recognizer, typed commands, settings, resizing, axe-core) and by looking at screenshots. **No testing with blind, low-vision or motor-impaired participants has been done**, and the prototype has not been verified with specific screen readers (NVDA, JAWS, VoiceOver, TalkBack). The test scripts and the written report are no longer included, so treat these checks as the developer's own and not independently verified.
+
+---

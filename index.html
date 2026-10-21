@@ -877,6 +877,208 @@ html[data-text=large] #bottomnav a span{font-size:var(--f12)}
 /* classic theme: coordinate labels on the dark squares use a very dark green (4.8:1) instead of cream (3.0:1) — same look, passes AA */
 html[data-board=classic] .sq.d .rk,html[data-board=classic] .sq.d .fl{color:#14200c}
 
+/* =====================================================================
+   PHASE 2 — redesign layer (same palette; hierarchy, states, evaluation)
+   ===================================================================== */
+/* ---- interaction states (never colour alone: borders, glyphs, text) ---- */
+.btn:active:not(:disabled),.mbtn:active:not(:disabled),.gbtn:active:not(:disabled),.tg:active:not(:disabled),.pb:active{transform:translateY(2px);border-bottom-width:1px}
+.btn:disabled,.mbtn:disabled,.gbtn:disabled,.ctrls button:disabled,.rnav button:disabled{opacity:.55;border-style:dashed;text-decoration:none}
+[aria-busy=true]{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0 8px,transparent 8px 16px)}
+.is-ok::before,.ss-ok::before{content:"✔ "}
+.is-bad::before{content:"✖ "}
+.hviz{position:fixed;left:12px;bottom:calc(var(--bnh) + 12px + env(safe-area-inset-bottom));z-index:97;margin:0;background:#000;color:var(--warn);border:2px solid currentColor;border-radius:999px;padding:6px 14px;display:none;font-weight:700}
+.hviz.on{display:block}
+.tagS{display:inline-block;font-size:var(--f12);font-weight:800;letter-spacing:.05em;padding:1px 6px;border:1px solid var(--warn);color:var(--warn);border-radius:4px;vertical-align:middle;white-space:nowrap}
+.tagS.real{border-color:var(--ok);color:var(--ok)}
+.tagS.sim{border-style:dashed}
+.sec-title{font-size:var(--f18);margin:18px 0 10px}
+
+/* ---- board-first, two-column layout on desktop and tablet landscape ---- */
+@media (min-width:900px){
+  :root{--bcap:calc(100vw - var(--sbw) - 460px - 110px)}
+  .lay,.lay-review,.lay-puzzle{grid-template-columns:auto minmax(320px,460px);grid-template-areas:"b p" "b d";grid-template-rows:auto 1fr;gap:14px 20px}
+  .lay-menu{grid-template-columns:minmax(340px,540px) auto;grid-template-areas:"p b";grid-template-rows:auto}
+  .gpanel,.rpanel,.ppanel{min-height:0}
+  .movelist{min-height:120px;max-height:300px}
+  .rscroll{max-height:460px}
+  .mlist{max-height:none;overflow:visible}
+}
+@media (min-width:900px) and (max-width:1179px){
+  :root{--bcap:calc(100vw - var(--sbw) - 320px - 90px)}
+  .lay,.lay-review,.lay-puzzle{grid-template-columns:auto minmax(280px,1fr)}
+  .lay-menu{grid-template-columns:minmax(300px,1fr) auto}
+}
+.statusstrip{display:flex;flex-direction:column;gap:2px;background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--green);border-radius:10px;padding:8px 12px;margin:0 0 8px}
+.statusstrip.ss-error,.statusstrip.ss-check{border-left-color:var(--danger);border-left-style:double}
+.statusstrip.ss-over{border-left-color:var(--warn)}
+.ss-main{font-weight:700;font-size:var(--f17)}
+.ss-ic{display:inline-block;min-width:1.1em}
+.ss-sub{font-size:var(--f14);color:var(--muted)}
+.ss-warn{font-size:var(--f14);color:var(--warn);font-weight:700}
+.ss-bad{font-size:var(--f14);color:var(--danger);font-weight:700}
+.ss-main em{font-style:normal;color:var(--warn);margin-left:6px}
+.boardbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin:8px 0}
+.boardbar .btn{min-height:46px;justify-content:center;width:100%}
+.boardbar .btn .cnt{font-weight:600;font-size:var(--f13);opacity:.85}
+.gp-toggle{display:none}
+.blabel2{display:none}
+.gfoot{flex-wrap:wrap}
+.gfoot button{border:1px solid var(--line);background:var(--btn);justify-content:center}
+.gfoot #bResign{margin-left:auto}
+.empty-note{padding:14px 18px;color:var(--dim)}
+.dcard .vdl{margin-top:8px}
+/* invalid destination: hatched box + text chip, held briefly; the board state is unchanged */
+.sq.bad{box-shadow:inset 0 0 0 5px #c92a2a,inset 0 0 0 9px #fff;background-image:repeating-linear-gradient(135deg,rgba(201,42,42,.5) 0 6px,transparent 6px 12px)}
+html[data-markers=enhanced] .sq.bad .mk::after{display:block}
+
+/* ---- home ---- */
+.home{max-width:1100px}
+.home-head{margin-bottom:12px}
+.hh-t{min-width:0}.hh-s{color:var(--muted);font-size:var(--f14)}
+.hero-card{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;background:var(--panel);border:2px solid var(--green);border-radius:14px;padding:16px 20px;margin-bottom:18px}
+.hero-tx{flex:1 1 280px;min-width:0}
+.eyebrow{font-size:var(--f13);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.hero-card h2{font-size:var(--f30);margin:2px 0 4px}
+.hero-sub{color:var(--muted);font-size:var(--f15)}
+.hero-act{display:flex;flex-direction:column;gap:8px;flex:0 1 280px;min-width:min(100%,220px)}
+.gbtn.hero{min-height:64px;font-size:var(--f22);gap:10px}
+.cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.cards3 .card .tc{margin:8px 0 0;flex-wrap:wrap}
+.cards3 .card .tc button{flex:1 1 40%;min-height:44px;font-size:var(--f14)}
+.cards3 .mini{max-width:120px}
+.qa{border-color:var(--line);padding:10px 14px;margin-bottom:12px}
+.qa h2{font-size:var(--f15);margin-bottom:8px}
+.more-info{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.more-info>summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--muted)}
+.more-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:4px 0 14px}
+.more-grid h3{font-size:var(--f16);margin-bottom:4px}
+.welcome{margin-bottom:16px}
+.wel3{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:8px 0 6px}
+.wel3 li{background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.wel3 b{display:block;color:#fff}.wel3 span{color:var(--muted);font-size:var(--f14)}
+@media (max-width:899px){
+  .cards3{grid-template-columns:1fr;gap:10px}
+  .hero-card{padding:14px}.hero-card h2{font-size:var(--f22)}
+  .hero-act{flex:1 1 100%}
+  .cards3 .card .tc{grid-column:1/-1}
+  .qa-row{display:grid;grid-template-columns:1fr 1fr}
+  .qa-row .btn{grid-column:1/-1}
+}
+@media (min-width:600px) and (max-width:899px){
+  .cards3{grid-template-columns:repeat(3,1fr)}
+  .qa-row{display:flex;flex-wrap:wrap}.qa-row .btn{grid-column:auto}
+}
+@media (max-width:359px){.cards3 .card .tc button{flex-basis:45%}.qa-row{grid-template-columns:1fr}}
+
+/* ---- review ---- */
+.rhead{display:flex!important;justify-content:space-between;padding:10px 14px}
+.rkey{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid var(--line)}
+.rexp-dl dt{font-weight:700;color:var(--accent);margin-top:12px;font-size:var(--f14)}
+.rexp-dl dt:first-child{margin-top:0}
+.rexp-dl dd{color:var(--text);font-size:var(--f16);line-height:1.45}
+.rscroll h3{font-size:var(--f17);margin:16px 0 8px}
+.rscroll h3:first-child{margin-top:0}
+.rexp{background:var(--deep);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px}
+.lay-review .boardbar{grid-template-columns:repeat(4,1fr)}
+@media (max-width:420px){.lay-review .boardbar .btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
+
+/* ---- puzzle ---- */
+.pobj{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:10px;padding:8px 12px;margin:0 0 8px;color:var(--muted);font-size:var(--f14);display:flex;flex-direction:column;gap:1px}
+.pobj b{font-size:var(--f18);color:#fff;display:block}
+.pobj .po-n{font-size:var(--f13);color:var(--dim)}
+.pobj.ok{border-left-color:var(--ok)}.pobj.bad{border-left-color:var(--danger);border-left-style:double}
+.phead h2{font-size:var(--f22)}
+.pbody{padding:16px}
+.pfb{display:flex;gap:12px;align-items:flex-start;background:var(--deep);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:10px;padding:12px 14px}
+.pfb.ok{border-left-color:var(--ok)}.pfb.bad{border-left-color:var(--danger);border-left-style:double}
+.pfb-i{width:30px;height:30px;border:2px solid var(--dim);border-radius:6px;display:grid;place-items:center;flex:none;font-style:normal;font-weight:800}
+.pfb-i.ok{background:#2f7d32;border-color:#fff;color:#fff}.pfb-i.bad{background:#b3261e;border-color:#fff;color:#fff}
+.pfb b{font-size:var(--f18)}.pfb p{color:var(--muted);margin-top:2px}
+.phints{margin-top:12px}.phints h3{font-size:var(--f14);color:var(--dim);margin-bottom:4px}
+.phints ol{list-style:decimal;padding-left:20px;color:var(--muted)}
+.pcount{font-weight:700;font-size:var(--f14)}
+.plist{display:grid;gap:6px;margin-top:10px}
+.plink{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;min-height:46px;padding:0 12px;border-radius:8px;background:var(--btn);border:1px solid var(--line);font-weight:600}
+.plink.cur{border:2px solid var(--accent);background:var(--accent-bg)}
+.plink .pst{font-size:var(--f13);color:var(--muted)}
+.pbody .gdata{margin-top:12px}
+
+/* ---- play menu ---- */
+.mhead{justify-content:flex-start;gap:12px;padding:10px 14px}
+.mhead h1{font-size:var(--f26)}
+.mhead h1:focus{outline:none}
+.mlist section+section{margin-top:4px}
+.mgroup{display:grid;gap:8px}
+.mitem{margin-bottom:0;min-height:68px;padding:8px 14px;gap:14px}
+.mitem .ico{width:44px;height:44px}.mitem .ico svg{max-width:100%;max-height:100%}
+.mtx b{font-size:var(--f18)}
+.na-list{margin-top:16px;background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:0 12px 12px}
+.na-list>summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--muted)}
+.na-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:8px}
+.mna{display:flex;flex-direction:column;gap:2px;width:100%;min-height:52px;padding:8px 12px;border-radius:8px;border:1px dashed var(--dim);color:var(--muted);text-align:left}
+.mna b{color:var(--text)}.mna span{font-size:var(--f13)}
+.mna:hover{background:var(--btn)}
+.pb-title{margin:0 0 6px;color:var(--muted);font-size:var(--f14)}.pb-title b{color:#fff}
+
+/* ---- help dialog ---- */
+.help-body h3{color:var(--accent);font-size:var(--f17);margin:16px 0 6px}
+.help-body h4{font-size:var(--f14);margin:10px 0 4px;color:var(--dim)}
+.cmds{display:flex;flex-wrap:wrap;gap:6px}
+.cmds li{background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:var(--f14);color:var(--muted)}
+.dlg:has(.help-body){width:min(640px,100%)}
+
+/* ---- 44 px minimum targets for the prototype strip and disclosure rows (desktop too) ---- */
+details>summary{min-height:44px}
+@media (min-width:900px){
+  #screens a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px}
+  .evlink,.orig{display:inline-flex;align-items:center;min-height:44px}
+}
+#protostrip .disc{white-space:normal}
+
+/* ---- axe fixes: coordinates via CSS, readable shortcut chip on green buttons ---- */
+.sq .rk::before,.sq .fl::before{content:attr(data-t)}
+.btn.primary kbd{background:rgba(0,0,0,.16);color:var(--on-green);border-color:rgba(0,0,0,.45)}
+html[data-contrast=high] .btn.primary kbd{background:rgba(0,0,0,.1)}
+#protostrip{display:flex}
+details.dcard>summary,.gdata summary,.vhist summary,.more-info>summary,.na-list>summary,details>summary{min-height:44px}
+/* every collapsible row shows a chevron so it is recognisable as expandable (not text alone) */
+.vhist>summary,.gdata>summary,.more-info>summary,.na-list>summary{list-style:none;justify-content:space-between;gap:8px}
+.vhist>summary::-webkit-details-marker,.gdata>summary::-webkit-details-marker,.more-info>summary::-webkit-details-marker,.na-list>summary::-webkit-details-marker{display:none}
+.vhist>summary::after,.gdata>summary::after,.more-info>summary::after,.na-list>summary::after{content:"";width:9px;height:9px;flex:none;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(45deg);margin:0 4px 4px 0}
+.vhist[open]>summary::after,.gdata[open]>summary::after,.more-info[open]>summary::after,.na-list[open]>summary::after{transform:rotate(225deg);margin:4px 4px 0 0}
+
+@media (min-width:600px) and (max-width:899px){.qa-row .tg{width:auto;flex:1 1 180px}.qa-row .btn{width:auto;flex:0 0 auto}}
+
+/* ---- global quick settings (top of every screen, one place) ---- */
+#quickbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto}
+.qb-l{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:var(--f13);color:var(--accent);margin-right:2px}
+.tg.qb{min-height:44px;padding:0 10px;min-width:0}
+.tg.qb .ql{white-space:nowrap}
+#protostrip .disc{display:none}
+@media (max-width:599px){
+  body[data-screen=home] #protostrip .disc{display:inline-block}
+  body:not([data-screen=home]) #protostrip{display:flex}
+  #protostrip{padding:6px 8px}
+  #quickbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;width:100%;margin-left:0}
+  .qb-l{display:none}
+  .tg.qb{flex-direction:column;justify-content:center;gap:1px;padding:4px 2px;min-height:56px;font-size:11px;line-height:1.1;text-align:center}
+  .tg.qb .ql{white-space:normal;overflow-wrap:anywhere}
+  .tg.qb .st{font-size:11px;padding:0 5px}
+  html[data-text=large] #quickbar{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
+  html[data-text=large] .tg.qb{font-size:var(--f12)}
+}
+@media (min-width:600px) and (max-width:899px){#quickbar{width:100%;margin-left:0}.qb-l{display:none}}
+@media (min-width:900px) and (max-width:1279px){.qb-l{display:none}}
+@media (min-width:900px) and (max-width:1179px){.tg .st{display:none}}
+.tg.qb[aria-pressed=true]::after{content:none}
+/* board size above 130%: the board takes the width, panels move below */
+@media (min-width:900px){
+  html[data-bigboard=on] .lay,html[data-bigboard=on] .lay-review,html[data-bigboard=on] .lay-puzzle,html[data-bigboard=on] .lay-menu{display:block}
+  html[data-bigboard=on] .lay>*{margin-bottom:14px}
+  html[data-bigboard=on] .bcol{width:min(calc(var(--bfit)*var(--bs)),100%)}
+  html[data-bigboard=on] .bwrap{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -890,20 +1092,20 @@ html[data-board=classic] .sq.d .rk,html[data-board=classic] .sq.d .fl{color:#142
 </defs></svg>
 
 <header id="protobar">
-  <div class="brand"><b>Ac<em>Chess</em><span class="brand-tag"> — Play Without Barriers</span></b><span>An accessible, multimodal redesign of Chess.com.</span></div>
+  <div class="brand"><b>Ac<em>Chess</em><span class="brand-tag"> — Play Without Barriers</span></b><span>Academic prototype · not affiliated with Chess.com</span></div>
   <div class="a11y-entry" id="a11yEntry" role="group" aria-label="Accessibility and Voice Controls">
-    <button type="button" id="btnA11y" class="pb pb-main" aria-label="Accessibility Settings, shortcut Alt plus Shift plus A" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+A">
+    <button type="button" id="btnA11y" class="pb pb-main" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+A">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5" fill="currentColor"/><path d="M4,8.5C8,10 16,10 20,8.5M12,9.5V14M12,14L8,21M12,14L16,21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="pb-t"><span class="pb-l" aria-hidden="true">Accessibility </span>Settings</span><kbd class="pb-k" aria-hidden="true">Alt+Shift+A</kbd></button>
-    <button type="button" id="btnVoice" class="pb pb-main" aria-label="Open Voice Controls, shortcut Alt plus Shift plus V" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+V">
+      <span class="pb-t"><span class="pb-l">Accessibility </span>Settings</span><kbd class="pb-k">Alt+Shift+A</kbd></button>
+    <button type="button" id="btnVoice" class="pb pb-main" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Alt+Shift+V">
       <svg width="22" height="22" viewBox="0 0 26 26" aria-hidden="true"><rect x="9" y="2" width="8" height="14" rx="4" fill="currentColor"/><path d="M5,12C5,17 8.5,20 13,20C17.5,20 21,17 21,12M13,20V24M9,24H17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-      <span class="pb-t"><span class="pb-l" aria-hidden="true">Open </span>Voice<span class="pb-l" aria-hidden="true"> Controls</span></span><kbd class="pb-k" aria-hidden="true">Alt+Shift+V</kbd></button>
+      <span class="pb-t"><span class="pb-l">Open </span>Voice<span class="pb-l"> Controls</span></span><kbd class="pb-k">Alt+Shift+V</kbd></button>
     <button type="button" id="btnHelp" class="pb" aria-label="Help and instructions">
       <span class="pb-q" aria-hidden="true">?</span><span class="pb-t">Help</span></button>
     <button type="button" id="btnMore" class="pb" aria-label="More options" aria-haspopup="dialog"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,6H20M4,12H20M4,18H20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="pb-t">More</span></button>
   </div>
 </header>
-<div id="protostrip">
+<aside id="protostrip" aria-label="Prototype screens and notice">
   <nav id="screens" aria-label="Prototype screens">
     <a href="#home" data-s="home">1 · Home</a>
     <a href="#play" data-s="play">2 · Playing</a>
@@ -912,8 +1114,9 @@ html[data-board=classic] .sq.d .rk,html[data-board=classic] .sq.d .fl{color:#142
     <a href="#menu" data-s="menu">5 · Play Menu</a>
   </nav>
   <a class="orig" href="chesscom-current.html">Compare: current Chess.com UI recreation</a>
-  <span class="disc">Proposed academic prototype · not an official Chess.com product · no connection to Chess.com servers</span>
-</div>
+  <span class="disc">Academic prototype · not affiliated with Chess.com · works offline</span>
+  <div id="quickbar" role="group" aria-label="Quick settings"></div>
+</aside>
 
 <div id="app">
   <div id="sidebarHost"></div>
@@ -927,7 +1130,7 @@ html[data-board=classic] .sq.d .rk,html[data-board=classic] .sq.d .fl{color:#142
     <a href="#puzzle" data-s="puzzle"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,8H9C9,4 15,4 15,8H20V13C24,13 24,19 20,19V21H4V8Z" fill="currentColor" transform="scale(.9) translate(1.5 .5)"/></svg><span>Puzzle</span></a>
     <a href="#menu" data-s="menu" aria-label="Play menu"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,6H20M4,12H20M4,18H20" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round"/></svg><span>Menu</span></a>
 </nav>
-<aside id="a11y" role="dialog" aria-modal="false" aria-labelledby="a11yT" hidden></aside>
+<div id="a11y" role="dialog" aria-modal="false" aria-labelledby="a11yT" hidden></div>
 <section id="voicePanel" role="dialog" aria-modal="false" aria-labelledby="vpT" hidden></section>
 <div id="live-polite" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="live-assertive" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
@@ -963,14 +1166,23 @@ const DEFAULTS={
   screenReader:false, voice:false, keyboardNav:true,
   contrast:false, boardTheme:'classic', boardSize:100, textSize:100, strongFocus:false, markers:true, reduceMotion:REDUCED_OS,
   sound:true, speech:false, speakBoard:false, rate:1, verbosity:'standard',
-  haptic:false,
+  haptic:false, volume:80,
   pieceTheme:'classic', clickToMove:true, largeTargets:false, confirmActions:true, untimed:false, continuousListen:false,
   spaceTalk:true, lowTime:true, lowTimeAt:60
 };
+/* Preferences are saved in the browser (localStorage; falls back to sessionStorage, then to memory).
+   Nothing leaves the device. "Reset to defaults" in Accessibility Settings clears them. */
+const Store={
+  mem:{},
+  get(k){try{const v=localStorage.getItem(k);if(v!==null)return v}catch(e){}try{const v=sessionStorage.getItem(k);if(v!==null)return v}catch(e){}return k in this.mem?this.mem[k]:null},
+  set(k,v){this.mem[k]=v;try{localStorage.setItem(k,v);return true}catch(e){}try{sessionStorage.setItem(k,v)}catch(e2){}return false},
+  del(k){delete this.mem[k];try{localStorage.removeItem(k)}catch(e){}try{sessionStorage.removeItem(k)}catch(e){}},
+  get persistent(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
+};
 let S=Object.assign({},DEFAULTS);
-try{const raw=sessionStorage.getItem('acchess.settings');if(raw)S=Object.assign({},DEFAULTS,JSON.parse(raw))}catch(e){}
+try{const raw=Store.get('acchess.settings');if(raw)S=Object.assign({},DEFAULTS,JSON.parse(raw))}catch(e){}
 const settingSubs=[];
-function saveSettings(){try{sessionStorage.setItem('acchess.settings',JSON.stringify(S))}catch(e){}}
+function saveSettings(){Store.set('acchess.settings',JSON.stringify(S))}
 function applySettings(){
   const h=document.documentElement;
   h.dataset.contrast=S.contrast?'high':'normal';
@@ -984,6 +1196,7 @@ function applySettings(){
   h.dataset.text=S.textSize>=130?'large':'normal';
   h.style.setProperty('--ts',S.textSize/100);
   h.style.setProperty('--bs',S.boardSize/100);
+  h.dataset.bigboard=S.boardSize>130?'on':'off';
 }
 function setSetting(k,v){S[k]=v;saveSettings();applySettings();settingSubs.forEach(fn=>fn(k,v))}
 function resetSettings(){S=Object.assign({},DEFAULTS);saveSettings();applySettings();settingSubs.forEach(fn=>fn('*',null))}
@@ -1015,7 +1228,7 @@ function speak(text,urgent,kind,done){
   try{
     const ss=window.speechSynthesis;
     if(urgent||ss.pending)ss.cancel();
-    const u=new SpeechSynthesisUtterance(text);u.rate=S.rate;u.lang='en-US';
+    const u=new SpeechSynthesisUtterance(text);u.rate=S.rate;u.lang='en-US';u.volume=Math.max(0,Math.min(1,S.volume/100));
     let fired=false;const fin=()=>{if(!fired){fired=true;done&&done()}};
     const ttsEnd=()=>{if(typeof Voice!=='undefined'){Voice.ttsBusy=false;Voice.ttsUntil=Date.now()+900}fin()};
     u.onstart=()=>{if(typeof Voice!=='undefined')Voice.ttsBusy=true};
@@ -1074,7 +1287,8 @@ const Sfx={
     (this.PATTERNS[kind]||this.PATTERNS.select).forEach(([f,d,type])=>{
       const o=c.createOscillator(),g=c.createGain();
       o.type=type;o.frequency.value=f;
-      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+      const peak=Math.max(.0002,.15*(S.volume/100));
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
       o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.02);t+=d*.9;
     });
     return true;
@@ -1479,7 +1693,7 @@ class ABoard{
     this.host=host;
     this.o=Object.assign({interactive:true,flipped:false,static:false,label:'Chessboard'},o);
     this.cur=[6,4];this.cells=new Map();this.mouse=false;this._edgeAt=0;
-    this.st={g:parseFEN(START_FEN).g,last:null,sel:null,targets:new Map(),check:null,paints:{},arrows:[],badge:null,hint:null,pal:undefined};
+    this.st={g:parseFEN(START_FEN).g,last:null,sel:null,targets:new Map(),check:null,paints:{},arrows:[],badge:null,hint:null,bad:null,pal:undefined};
     ABoard.all.add(this);
     this.build();this.bind();this.paint();
     if(window.ResizeObserver){new ResizeObserver(()=>host.style.setProperty('--bwpx',host.clientWidth||700)).observe(host)}
@@ -1503,7 +1717,7 @@ class ABoard{
         c.className='sq '+((r+f)%2===0?'l':'d');c.dataset.r=r;c.dataset.f=f;
         if(!o.static){c.setAttribute('role','gridcell');c.setAttribute('aria-colindex',vc+1);c.tabIndex=-1}
         c.innerHTML='<span class="pcl" aria-hidden="true"></span><span class="mk" aria-hidden="true"></span>'+
-          (vc===0?`<span class="rk" aria-hidden="true">${8-r}</span>`:'')+(vr===7?`<span class="fl" aria-hidden="true">${FILES[f]}</span>`:'');
+          (vc===0?`<span class="rk" aria-hidden="true" data-t="${8-r}"></span>`:'')+(vr===7?`<span class="fl" aria-hidden="true" data-t="${FILES[f]}"></span>`:'');
         row.appendChild(c);this.cells.set(r*8+f,c);
       }
       h.appendChild(row);
@@ -1610,6 +1824,7 @@ class ABoard{
     if(s.last){if(eqSq(s.last[1],[r,f]))t+=', last move destination';else if(eqSq(s.last[0],[r,f]))t+=', last move origin'}
     if(s.badge&&s.badge.sq===n)t+=`, marked ${s.badge.text}`;
     if(s.hint===n)t+=', hint';
+    if(s.bad===n)t+=', illegal destination';
     return t;
   }
   paint(){
@@ -1628,13 +1843,14 @@ class ABoard{
       c.classList.toggle('lmt',!!lmTo);c.classList.toggle('lmf',!!lmFrom);
       c.classList.toggle('chk',!!chk);
       c.classList.toggle('hnt',s.hint===n);
+      c.classList.toggle('bad',s.bad===n);
       const pt=s.paints[n];
       c.classList.toggle('pt',!!pt);
       c.style.setProperty('--pt',pt||'');
       let chip='';
-      if(chk)chip='CHECK';else if(isSel)chip='SELECTED';else if(s.hint===n)chip='HINT';else if(lmTo)chip='to';else if(lmFrom)chip='from';
+      if(s.bad===n)chip='ILLEGAL';else if(chk)chip='CHECK';else if(isSel)chip='SELECTED';else if(s.hint===n)chip='HINT';else if(lmTo)chip='to';else if(lmFrom)chip='from';
       c.querySelector('.mk').dataset.chip=chip;
-      c.querySelector('.mk').dataset.chipS={SELECTED:'SEL',CHECK:'CHK'}[chip]||chip;   // short text for small boards
+      c.querySelector('.mk').dataset.chipS={SELECTED:'SEL',CHECK:'CHK',ILLEGAL:'✖'}[chip]||chip;   // short text for small boards
       c.querySelector('.mk').innerHTML=(s.badge&&s.badge.sq===n)?`<b class="bdg">${esc(s.badge.sym)}</b>`:'';
       if(!this.o.static){
         c.setAttribute('aria-label',this.labelFor(r,f));
@@ -1754,8 +1970,9 @@ class GameController{
     if(!this.canMove()){this.error(this.thinking?'The opponent is thinking. Please wait for their move.':`It is ${cname(this.game.turn)}'s turn.`);return false}
     return true;
   }
-  error(text){
+  error(text,sq){
     this.lastError=text;say(text,{kind:'alert',urgent:true});fx('invalid');
+    if(sq){this.board.set({bad:sq});clearTimeout(this._badT);this._badT=setTimeout(()=>{this.board.set({bad:null})},2400)}
     const h=this.host;h.classList.remove('shake');void h.offsetWidth;if(!S.reduceMotion)h.classList.add('shake');
     this.onChange(this);
   }
@@ -1771,7 +1988,7 @@ class GameController{
       const hit=this.game.legal(this.sel[0],this.sel[1]).filter(m=>eqSq(m.to,[r,f]));
       if(hit.length){this.move(this.sel,[r,f],null,src);return}
       if(p&&p.c===this.game.turn){this.select(r,f);return}
-      this.error(explainIllegal(this.game,this.sel,[r,f]));return;
+      this.error(explainIllegal(this.game,this.sel,[r,f]),n);return;
     }
     if(p&&p.c===this.game.turn){this.select(r,f);return}
     if(p&&p.c!==this.game.turn&&this.canMove()){say(`That is a ${pname(p)}. Select one of your ${cname(this.game.turn).toLowerCase()} pieces first.`,{kind:'alert'});fx('invalid');return}
@@ -1806,7 +2023,7 @@ class GameController{
   move(from,to,promo,src){
     if(!this.guard())return false;
     const cands=this.game.legal(from[0],from[1]).filter(m=>eqSq(m.to,to));
-    if(!cands.length){this.error(explainIllegal(this.game,from,to));return false}
+    if(!cands.length){this.error(explainIllegal(this.game,from,to),sqn(...to));return false}
     let m=cands[0];
     if(cands.length>1){
       if(promo){m=cands.find(x=>x.promo===promo)}
@@ -2169,6 +2386,8 @@ function parseCommand(raw){
   if(m(/\b(new game|reset|restart|start over|try again)\b/))return {...R,intent:'reset'};
   if(m(/\b(undo|take back|takeback|take it back)\b/))return {...R,intent:'undo'};
   if(m(/\b(cancel|clear|deselect|unselect|drop|put down)\b/)&&!m(/\bmove\b.*\bSQ\b/))return {...R,intent:'cancel'};
+  if(m(/\b(flip|rotate|turn around|switch sides)\b.*\bboard\b|\bflip\b/))return {...R,intent:'flip'};
+  if(m(/\b(next|another|new) puzzle\b/)&&!sq.length)return {...R,intent:'next-puzzle'};
   if(m(/\b(hint|clue)\b/))return {...R,intent:'hint'};
   if(m(/\b(first|start)\b.*\b(move|position)\b/)&&!sq.length)return {...R,intent:'rv-first'};
   if(m(/\b(last|final|latest|end)\b.*\b(position)\b/)&&!sq.length)return {...R,intent:'rv-last'};
@@ -2450,7 +2669,7 @@ const Voice={
       }
       case'size':{
         if(!c.key)return fail('Say “increase text size” or “increase board size”.');
-        const key=c.key,min=key==='textSize'?100:60,max=key==='textSize'?160:130,cur=S[key];
+        const key=c.key,min=key==='textSize'?100:60,max=key==='textSize'?160:200,cur=S[key];
         const nv=Math.max(min,Math.min(max,cur+(c.dir>0?10:-10)));
         const name=key==='textSize'?'Text size':'Board size';
         if(nv===cur){const m=`${name} is already at its ${c.dir>0?'maximum':'minimum'}: ${cur} percent.`;say(m,{kind:'info',force:true});return done(m,`${c.dir>0?'Increase':'Decrease'} ${name.toLowerCase()}`)}
@@ -2547,6 +2766,15 @@ const Voice={
         {const asked=confirmAction({title:'Undo your last move?',message:'This takes back a completed move'+(C.opponent?' and the opponent’s reply':'')+'. It is different from cancelling a selection.',confirmLabel:'Undo move',
           onConfirm:()=>C.undo()});
         return asked?{ok:true,confirm:true,msg:'Waiting for confirmation: undo the last move. Say “confirm” or “cancel”.',understood:'Undo last move'}:{ok:true,msg:'Last move undone.',understood:'Undo last move'}}
+      }
+      case'flip':
+        if(!C.board)return fail('There is no board to flip on this screen.');
+        C.board.setFlipped(!C.board.flipped);
+        return done(`Board flipped. ${C.board.flipped?'Black':'White'} is now at the bottom.`,'Flip board');
+      case'next-puzzle':{
+        const nb=$('.js-next');
+        if(!C.puzzle||!nb)return fail('Next puzzle is only available on the Puzzles screen.');
+        nb.click();return done('Next puzzle.','Next puzzle');
       }
       case'hint':
         if(!C.puzzle)return fail('Hints are only available on the puzzle screen.');
@@ -2881,26 +3109,43 @@ function outsideScope(title,what){
   infoDialog(title,`<p>${esc(what)}</p><p class="dlg-hint">This section is outside the five redesigned prototype screens (Home, Playing, Game Review, Puzzles, Play menu). It is shown here so the navigation structure stays familiar.</p>`,
     [{label:'Go to Play menu',primary:true,onClick:()=>navigate('menu')}]);
 }
-function showKeyHelp(){
-  infoDialog('Keyboard shortcuts',`
-   <table class="keys"><tbody>
-    <tr><th>Arrow keys</th><td>Move between squares (Home / End: first / last file)</td></tr>
-    <tr><th>Enter</th><td>Select a piece, then press again on a highlighted square to move</td></tr>
-    <tr><th>Space</th><td>Push-to-talk: press, wait for “Listening”, then say your move (when the board or page has focus). Turn off in Settings to make Space act like Enter.</td></tr>
-    <tr><th>Esc</th><td>Cancel the current selection (does not undo a move)</td></tr>
-    <tr><th>R</th><td>Read the whole board</td></tr>
-    <tr><th>T</th><td>Whose turn is it</td></tr>
-    <tr><th>L</th><td>Read the last move</td></tr>
-    <tr><th>M</th><td>Read legal moves for the selected piece (or the square under the cursor)</td></tr>
-    <tr><th>D</th><td>Describe the square under the cursor</td></tr>
-    <tr><th>H</th><td>Puzzle hint</td></tr>
-    <tr><th>Page Up / Page Down</th><td>Previous / next move in history or review</td></tr>
-    <tr><th>?</th><td>Show this help</td></tr>
-    <tr><th>Alt + Shift + A</th><td>Open or close Accessibility Settings (any screen)</td></tr>
-    <tr><th>Alt + Shift + V</th><td>Open or close Voice Controls (any screen)</td></tr>
-   </tbody></table>
-   <p class="dlg-hint">If these shortcuts clash with your screen reader or keyboard layout, use the always-visible “Accessibility Settings” and “Open Voice Controls” buttons at the top of every screen.</p>`);
+const VOICE_HELP=[
+  ['On the board',['Select e2','Move e2 to e4','Knight to f3','Castle kingside','Cancel selection','Undo my last move','Read the board','Read legal moves','Whose turn is it','Describe e4']],
+  ['In a game',['Previous move','Next move','First position','Last position','Flip the board','Offer a draw','Resign (always asks you to confirm)']],
+  ['Puzzles',['Hint','Try again','Next puzzle','Read the puzzle']],
+  ['Moving around AcChess',['Go to home','Go to puzzles','Go to game review','Go to play menu','Go back','What can I do here','List controls','Scroll down']],
+  ['Settings',['Open accessibility settings','Enable high contrast','Increase text size','Turn off sound','Turn on screen reader mode','Reset settings']]
+];
+const KEY_HELP=[
+  ['Arrow keys','Move between squares (Home / End: first / last file)'],
+  ['Enter','Select a piece, then press again on a highlighted square to move'],
+  ['Space','Push-to-talk: press, wait for “Listening”, then say your move (board or page focused). Turn it off in Settings to make Space act like Enter.'],
+  ['Esc','Cancel the current selection (does not undo a move) or close a dialog'],
+  ['R','Read the whole board'],['T','Whose turn is it'],['L','Read the last move'],
+  ['M','Read legal moves for the selected piece (or the square under the cursor)'],['D','Describe the square under the cursor'],
+  ['H','Puzzle hint'],['Page Up / Page Down','Previous / next move in history or review'],['?','Show this help'],
+  ['Alt + Shift + A','Open or close Accessibility Settings (any screen)'],['Alt + Shift + V','Open or close Voice Controls (any screen)']
+];
+function helpBodyHTML(){
+  return `<p class="dlg-hint">Open this help any time with the <b>Help</b> button at the top of the screen.</p>
+   <section aria-labelledby="hp1"><h3 id="hp1">Getting started</h3>
+    <ul class="welcome-list">${WELCOME_ITEMS.map(([k,a,b])=>`<li class="w-${k}"><b>${a}</b> ${b}</li>`).join('')}</ul></section>
+   <section aria-labelledby="hp2"><h3 id="hp2">Keyboard shortcuts</h3>
+    <table class="keys"><tbody>${KEY_HELP.map(([k,v])=>`<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>
+    <p class="dlg-hint">If a shortcut clashes with your screen reader, use the always-visible “Accessibility Settings” and “Voice Controls” buttons at the top of every screen.</p></section>
+   <section aria-labelledby="hp3"><h3 id="hp3">Voice and typed commands</h3>
+    <p>Press the microphone in Voice Controls and say <b>one</b> command, or type it. Say the words naturally; you do not need to memorise them.</p>
+    ${VOICE_HELP.map(([t,l])=>`<h4>${t}</h4><ul class="cmds">${l.map(x=>`<li>“${x}”</li>`).join('')}</ul>`).join('')}</section>
+   <section aria-labelledby="hp4"><h3 id="hp4">Touch and mouse</h3>
+    <p>Tap or click a piece, then a highlighted square. Dragging is optional and off by default. Use <b>Cancel selection</b> to change your mind and <b>Undo last move</b> to take a move back.</p></section>
+   <p class="dlg-hint">AcChess is a proposed academic prototype. The opponent is simulated and nothing connects to Chess.com.</p>`;
 }
+function showHelp(section){
+  const dlg=openDialog({title:'Help, keys and commands',body:`<div class="help-body">${helpBodyHTML()}</div>`,
+    actions:[{label:'Show welcome tips on Home again',onClick:()=>{Store.del('acchess.welcome');say('Welcome tips will show on Home.',{kind:'info',force:true});if(CURRENT==='home')route(false)}}]});
+  if(section){setTimeout(()=>{const h=$('#'+({keys:'hp2',voice:'hp3'}[section]||'hp1'),dlg);if(h){h.scrollIntoView({block:'start'});h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}},60)}
+}
+function showKeyHelp(){showHelp('keys')}
 function openSearch(){
   const items=[
     ['Home','Dashboard',()=>navigate('home')],['Play menu','Play Chess options',()=>navigate('menu')],['Playing','Chess game board',()=>navigate('play')],
@@ -2910,7 +3155,8 @@ function openSearch(){
     ['Help and instructions','Welcome and navigation methods',()=>showHelp()],
     ['Toggle high contrast','Switch the high-contrast theme',()=>toggleSetting('contrast')],
     ['Toggle screen reader mode','Square announcements while moving',()=>toggleSetting('screenReader')],
-    ['Keyboard shortcuts','List of board keys',()=>showKeyHelp()]
+    ['Keyboard shortcuts','List of board keys',()=>showKeyHelp()],
+    ['Voice commands','Examples you can say or type',()=>showHelp('voice')]
   ];
   const dlg=openDialog({title:'Search AcChess',cancelLabel:'Close',
     body:`<label class="fld"><span>Search screens and settings</span><input id="srchIn" type="search" autocomplete="off" placeholder="e.g. puzzles, contrast"></label><ul class="srch" id="srchList"></ul>`});
@@ -2982,29 +3228,29 @@ function selectHTML(key,label,opts,desc){
 function a11yHTML(){
   const hap=Haptics.supported();
   return `
-  <header class="a11y-h"><div><h2 id="a11yT">${I.access(22)} Accessibility settings</h2>
-    <p>Changes apply immediately and stay on for this browser session. Nothing here requires a microphone, sound or vibration.</p></div>
-    <button type="button" class="btn icon" data-a11y-close aria-label="Close accessibility settings">${I.close(18)}</button></header>
+  <div class="a11y-h"><div><h2 id="a11yT">${I.access(22)} Accessibility settings</h2>
+    <p>Changes apply at once and are ${Store.persistent?'saved in this browser':'kept until you close this tab (your browser blocks saving)'}. Nothing here needs a microphone, sound or vibration.</p></div>
+    <button type="button" class="btn icon" data-a11y-close aria-label="Close accessibility settings">${I.close(18)}</button></div>
   <div class="a11y-body">
    <section aria-labelledby="s1"><h3 id="s1">Vision</h3>
     ${switchHTML('contrast','High contrast','Black and white theme with thick borders, bold pieces and a patterned board.')}
     ${rangeHTML('textSize','Text size',100,160,5,'%','Scales interface text.')}
-    ${rangeHTML('boardSize','Board size',60,130,5,'%','Scales the chessboard.')}
+    ${rangeHTML('boardSize','Board size',60,200,5,'%','Scales the chessboard, up to the width of your screen. Above 130% the side panels move below the board.')}
     ${selectHTML('boardTheme','Board theme',[['classic','Classic green and cream'],['hc','High contrast black and white'],['cb','Colour-blind safe blue and sand']],'The familiar green board is the default.')}
     ${selectHTML('pieceTheme','Piece theme',[['classic','Classic pieces'],['hc','High-contrast bold pieces'],['letters','Classic pieces with letter labels (K Q R B N P)']],'Letter labels help tell pieces apart without relying on shape.')}
     ${switchHTML('strongFocus','Strong focus indicators','Thicker, double-ring outline around the focused control or square.')}
     ${switchHTML('markers','Move indicators','Selected, legal-move, capture, check and last-move squares use shapes, patterns and text labels, not colour alone.')}
     ${switchHTML('reduceMotion','Reduced motion','Turns off animations and shortens delays.')}
    </section>
-   <section aria-labelledby="s2"><h3 id="s2">Nonvisual access</h3>
+   <section aria-labelledby="s2"><h3 id="s2">Nonvisual Access</h3>
     ${switchHTML('screenReader','Screen-reader compatibility mode','Announces each square as you move around the board and keeps the transcript visible. Works alongside your own screen reader.')}
     ${switchHTML('speakBoard',speechSupported()?'Spoken board descriptions':'Spoken board descriptions (not supported here)','Speaks square descriptions, board readings and answers to your questions using your browser’s speech synthesis.',
       `<button type="button" class="btn sm" data-test="speech">Test speech</button>`)}
     ${switchHTML('speech',speechSupported()?'Spoken game announcements':'Spoken game announcements (not supported here)','Speaks moves, check, results and error messages. A text transcript is always shown.')}
-    ${rangeHTML('rate','Speech rate',0.6,1.6,0.1,'×','Applies to all spoken output.')}
+    ${rangeHTML('rate','Speech rate',0.6,3,0.1,'×','Applies to all spoken output (0.6× slow to 3× very fast).')}
     ${selectHTML('verbosity','Announcement verbosity',[['minimal','Minimal — notation only'],['standard','Standard'],['detailed','Detailed — includes legal moves and side to move']],'How much each move and selection says.')}
    </section>
-   <section aria-labelledby="s3"><h3 id="s3">Input and motor accessibility</h3>
+   <section aria-labelledby="s3"><h3 id="s3">Input and Motor Accessibility</h3>
     ${switchHTML('voice','Voice control','Marks the microphone as in use. The microphone only starts when you press it, and typed commands always work.',
       `<button type="button" class="btn sm" data-open-voice>Open Voice Controls</button>`)}
     ${switchHTML('continuousListen','Continuous listening (optional)','One microphone session stays open for many commands, so the browser asks for permission only once. Speech that is not a command is ignored. Turns off after 5 minutes of silence, or say “stop listening”. Off by default.')}
@@ -3015,9 +3261,10 @@ function a11yHTML(){
     ${switchHTML('confirmActions','Confirm consequential actions','Asks before draw offers, undo and new game. Resignation always asks, even when this is off.')}
     ${switchHTML('untimed','Untimed play','Turns off the game clocks so there is no time limit.')}
    </section>
-   <section aria-labelledby="s4"><h3 id="s4">Audio and haptics</h3>
+   <section aria-labelledby="s4"><h3 id="s4">Audio and Haptics</h3>
     ${switchHTML('sound','Sound effects','Short tones for select, move, opponent move, illegal move, check and checkmate. Never plays on page load.',
       `<button type="button" class="btn sm" data-test="sound">Test sound</button>`)}
+    ${rangeHTML('volume','Volume',0,100,5,'%','Loudness of sound effects and spoken output (where your browser supports it).')}
     ${switchHTML('haptic','Haptic feedback','Vibration patterns for each chess event on devices that support it.',
       `<button type="button" class="btn sm" data-test="haptic">Test haptic feedback</button>`)}
     <p class="note" id="hapNote">Vibration API: <b>${hap?'available on this device':'not available on this device'}</b>${hap?'':' — a visual demonstration is shown instead and nothing is claimed to vibrate.'}</p>
@@ -3026,7 +3273,7 @@ function a11yHTML(){
     ${selectHTML('lowTimeAt','Warn me when this much time is left',[['120','2 minutes'],['60','1 minute'],['30','30 seconds'],['20','20 seconds'],['10','10 seconds']],'The final 10 seconds also tick once per second (sound on).')}
    </section>
   </div>
-  <footer class="a11y-f"><button type="button" class="btn" data-reset>Reset to defaults</button><button type="button" class="btn primary" data-a11y-close>Done</button></footer>`;
+  <footer class="a11y-f"><button type="button" class="btn" data-reset>Reset all to defaults</button><button type="button" class="btn primary" data-a11y-close>Done</button></footer>`;
 }
 const A11y={open:false,opener:null};
 function renderA11y(keepFocus){
@@ -3049,7 +3296,7 @@ function openA11y(opener){
 }
 function closeA11y(quiet){
   const el=$('#a11y');if(!el||!A11y.open)return;
-  A11y.open=false;el.hidden=true;document.body.classList.remove('a11y-open');
+  A11y.open=false;el.hidden=true;el.innerHTML='';document.body.classList.remove('a11y-open');
   const b=$('#btnA11y');if(b)b.setAttribute('aria-expanded','false');
   if(quiet===true)return;
   const o=A11y.opener;
@@ -3100,28 +3347,16 @@ function bindA11y(){
   settingSubs.push(()=>{if(A11y.open&&!($('#a11y').contains(document.activeElement)&&document.activeElement.type==='range'))renderA11y(true)});
 }
 
-/* ----- toolbar (quick toggles) ---------------------------------------- */
-function toolbarHTML(){
-  const t=(k,icon,label)=>`<button type="button" class="tg" data-tg="${k}" aria-pressed="${settingOn(k)}"><span class="tgi">${icon}</span><span>${label}</span><span class="st">${settingOn(k)?I.check(12)+' On':'Off'}</span></button>`;
-  return `<div class="atb" role="group" aria-label="Accessibility toolbar">
-    <span class="lbl">${I.access(18)} Accessibility</span>
-    ${t('screenReader',I.ear(18),'Screen reader')}${t('voice',I.mic(18),'Voice control')}${t('contrast',I.contrast(18),'High contrast')}
-    ${t('sound',I.sound(18),'Sound')}${t('speech',I.speaker(18),'Speech')}${t('haptic',I.vib(18),'Vibration')}
-    <button type="button" class="tg act" data-open-a11y>${I.gear(18,'currentColor')}<span>Settings</span></button>
-    <span class="hviz" id="hviz" aria-hidden="true"></span>
-  </div>`;
-}
+/* ----- quick-setting buttons on Home keep their state in sync ---------- */
 function refreshToolbars(){
-  $$('.atb').forEach(tb=>{
-    $$('[data-tg]',tb).forEach(b=>{
-      const k=b.dataset.tg;b.setAttribute('aria-pressed',String(settingOn(k)));
-      $('.st',b).innerHTML=settingOn(k)?I.check(12)+' On':'Off';
-    });
-  });
   $$('[data-qa]').forEach(b=>{const k=b.dataset.qa;b.setAttribute('aria-pressed',String(settingOn(k)));const st=$('.st',b);if(st)st.innerHTML=settingOn(k)?I.check(12)+' On':'Off'});
-  const note=$('#hapNote');if(note)note.hidden=false;
 }
 settingSubs.push(refreshToolbars);
+/* quick settings: one global bar at the top of every screen (the same switches as in Accessibility Settings) */
+function quickBarHTML(){
+  const t=(k,icon,label)=>`<button type="button" class="tg qb" data-qa="${k}" aria-pressed="${settingOn(k)}"><span class="tgi">${icon}</span><span class="ql">${label}</span><span class="st">${settingOn(k)?I.check(12)+' On':'Off'}</span></button>`;
+  return `<span class="qb-l">${I.access(16)} Quick settings</span>`+t('screenReader',I.ear(18),'Screen reader')+t('contrast',I.contrast(18),'High contrast')+t('sound',I.sound(18),'Sound')+t('speech',I.speaker(18),'Speech')+t('haptic',I.vib(18),'Vibration');
+}
 let hvT;
 fxSubs.add((kind,h)=>{
   const v=$('#hviz');if(!v||!h||!h.demo)return;
@@ -3131,21 +3366,11 @@ fxSubs.add((kind,h)=>{
 
 /* ----- assistive dock ------------------------------------------------- */
 function dockHTML(kind){
-  const ex={play:['Move e2 to e4','Knight to f3','Select e2','What is on e4','Read the board','Read legal moves','Offer draw'],
-    menu:['Select e2','Move e2 to e4','Read the board','Whose turn is it'],
-    puzzle:['Read the puzzle','Hint','Move f1 to f8','Rook to f8','Read legal moves'],
-    review:['Next move','Previous move','Read the board','What is on g4','First position']}[kind]||[];
-  const showUndo=kind==='play'||kind==='menu';
-  return `<aside class="dock" aria-label="AcChess assistive panel" id="dock">
-   <details class="dcard dcollapse" open>
-     <summary><h2 id="dk-st">${I.access(18)} Game status</h2></summary>
-     <p class="latest" id="dkLatest"><span class="sr-only">Latest announcement: </span><span id="dkLatestT">No announcements yet.</span></p>
-     <dl class="stat-dl" id="dkStatus"></dl>
-     <div class="btnrow" id="dkActions">
-       ${kind!=='review'?`<button type="button" class="btn js-cancel" id="bCancel">${I.close(14)} Cancel selection <kbd>Esc</kbd></button>`:''}
-       ${showUndo?`<button type="button" class="btn js-undo" id="bUndo">${I.undo(14)} Undo last move</button>`:''}
-     </div>
-   </details>
+  const stat=(kind==='play'||kind==='puzzle')?`<details class="dcard dcollapse" id="statCard" open>
+     <summary><h2 id="dk-s">${I.info(18)} Game status</h2></summary>
+     <dl class="stat-dl" id="dkStatus"></dl></details>`:'';
+  return `<aside class="dock" aria-label="Game status, voice and announcements" id="dock">
+   ${stat}
    <section class="dcard" aria-labelledby="dk-v">
      <h2 id="dk-v">${I.mic(18)} Voice control</h2>
      <p class="small muted">Speak or type one command at a time. The microphone never starts by itself.</p>
@@ -3155,10 +3380,11 @@ function dockHTML(kind){
        <dt>Result</dt><dd id="dkRes">—</dd>
      </dl>
    </section>
-   <details class="dcard dcollapse" open>
+   <details class="dcard dcollapse" id="annCard">
      <summary><h2 id="dk-a">${I.speaker(18)} Announcements</h2></summary>
+     <p class="latest" id="dkLatest"><span class="sr-only">Latest announcement: </span><span id="dkLatestT">No announcements yet.</span></p>
      <div class="btnrow"><button type="button" class="btn sm" id="aRepeat">Repeat last</button><button type="button" class="btn sm" id="aClear">Clear transcript</button>
-       <button type="button" class="btn sm" id="aKeys">${I.kbd(14)} Keys</button></div>
+       <button type="button" class="btn sm" id="aKeys">${I.kbd(14)} Keys and commands</button></div>
      <ol class="alog" id="aLog" aria-label="Announcement transcript"></ol>
    </details>
   </aside>`;
@@ -3168,11 +3394,24 @@ function logItemHTML(e){
   const lab={game:'Game',cmd:'Info',alert:'Alert',fx:'Feedback',focus:'Focus',info:'Info'}[e.kind]||'Info';
   return `<li class="k-${e.kind}${e.urgent?' urgent':''}"><time>${fmtTime(e.t)}</time><span class="kd">${e.kind==='alert'?'✖ ':''}${lab}</span><span class="tx">${esc(e.text)}</span>${e.spoken?'<span class="sp" title="Spoken aloud">'+I.sound(13)+'<span class="sr-only">spoken</span></span>':''}</li>`;
 }
+function boardActions(e,ctrlGetter){
+  const b=e.target.closest('button');if(!b)return false;
+  const C=ctrlGetter();
+  if(b.classList.contains('js-cancel')){if(C&&C.cancel){C.cancel('button')}return true}
+  if(b.classList.contains('js-undo')){
+    if(!C||!C.undo)return true;
+    if(!C.game.moves.length){say('There are no moves to undo.',{kind:'alert'});return true}
+    confirmAction({title:'Undo your last move?',message:'This takes back a completed move'+(C.opponent?' and the opponent’s reply':'')+'. It is different from cancelling a selection.',confirmLabel:'Undo move',onConfirm:()=>C.undo()});
+    return true;
+  }
+  return false;
+}
+function mountBoardbar(ctrlGetter){const bb=$('#boardbar');if(bb)bb.addEventListener('click',e=>boardActions(e,ctrlGetter))}
 function mountDock(kind,dispose,ctrlGetter){
+  mountBoardbar(ctrlGetter);
   const log=$('#aLog'),latest=$('#dkLatestT');
   if(!log)return;
-  const compact=matchMedia('(max-width:899px)').matches;      // phones/tablets: secondary cards start collapsed
-  $$('#dock .dcollapse').forEach(d=>{d.open=!compact});
+  const ac=$('#annCard');if(ac)ac.open=!!S.screenReader;          // progressive disclosure: transcript opens by itself only for screen-reader mode
   const redraw=()=>{log.innerHTML=Ann.log.slice(-60).map(logItemHTML).join('');log.scrollTop=log.scrollHeight};
   redraw();
   const last=Ann.log.filter(e=>e.kind!=='fx'&&e.kind!=='focus').slice(-1)[0];if(last)latest.textContent=last.text;
@@ -3192,31 +3431,28 @@ function mountDock(kind,dispose,ctrlGetter){
   dkPaint();Voice.subs.add(dkPaint);dispose.push(()=>Voice.subs.delete(dkPaint));
   const dockClick=e=>{
     const b=e.target.closest('button');if(!b)return;
-    const C=ctrlGetter();
-    if(b.classList.contains('js-cancel')&&C&&C.cancel){C.cancel('button')}
-    else if(b.classList.contains('js-undo')&&C&&C.undo){
-      if(!C.game.moves.length){say('There are no moves to undo.',{kind:'alert'});return}
-      confirmAction({title:'Undo your last move?',message:'This takes back a completed move'+(C.opponent?' and the opponent’s reply':'')+'. It is different from cancelling a selection.',confirmLabel:'Undo move',onConfirm:()=>C.undo()});
-    }
-    else if(b.id==='aRepeat'){
+    if(b.id==='aRepeat'){
       const l=Ann.log.filter(x=>x.kind!=='fx'&&x.kind!=='focus').slice(-1)[0];
       if(!l){say('Nothing to repeat yet.',{kind:'info'});return}
       if(!S.speech){say('Spoken game announcements are off, so the last message is shown as text only: '+l.text,{kind:'info',force:true});return}
       say(l.text,{kind:'info',force:true,live:false});
     }
     else if(b.id==='aClear'){Ann.log.length=0;log.innerHTML='';latest.textContent='Transcript cleared.'}
-    else if(b.id==='aKeys')showKeyHelp();
+    else if(b.id==='aKeys')showHelp('keys');
   };
   $('#dock').addEventListener('click',dockClick);
-  const bb=$('#boardbar');if(bb)bb.addEventListener('click',dockClick);
 }
-/* board actions shown directly under the board on phones (desktop keeps them in the status card) */
+/* board actions, directly under the board on every screen size (one consistent place) */
 function boardbarHTML(kind){
-  return `<div class="boardbar m-only" id="boardbar" role="group" aria-label="Board actions">
-    ${kind==='puzzle'?`<button type="button" class="btn js-hint" id="hintM">${I.bulb(18)} Hint</button>
-    <button type="button" class="btn js-retry" id="pRetryM">${I.restart(16)} Try again</button>`:''}
+  if(kind==='puzzle')return `<div class="boardbar" id="boardbar" role="group" aria-label="Puzzle actions">
+    <button type="button" class="btn js-hint" id="hintM">${I.bulb(18)} Hint</button>
+    <button type="button" class="btn js-retry" id="pRetryM">${I.restart(16)} Try again</button>
+    <button type="button" class="btn js-next" id="pNextM">${I.next(18)} Next puzzle</button>
     <button type="button" class="btn js-cancel" id="bCancelM">${I.close(14)} Cancel selection</button>
-    ${kind==='puzzle'?'':`<button type="button" class="btn js-undo" id="bUndoM">${I.undo(14)} Undo last move</button>`}
+  </div>`;
+  return `<div class="boardbar" id="boardbar" role="group" aria-label="Board actions">
+    <button type="button" class="btn js-cancel" id="bCancelM" title="Esc">${I.close(14)} Cancel selection</button>
+    <button type="button" class="btn js-undo" id="bUndoM">${I.undo(14)} Undo last move</button>
   </div>`;
 }
 function statusRowsHTML(rows){return rows.map(([k,v,cls])=>`<div><dt>${esc(k)}</dt><dd class="${cls||''}">${v}</dd></div>`).join('')}
@@ -3226,21 +3462,20 @@ function sidebarHTML(active){
   const a=(id,icon,label)=>`<li><a class="sb-item" href="#${id}" ${active===id?'aria-current="page"':''}><span class="sb-ico">${icon}</span><span>${label}</span></a></li>`;
   const bt=(act,icon,label,extra='')=>`<li><button type="button" class="sb-item" data-act="${act}" ${extra}><span class="sb-ico">${icon}</span><span>${label}</span></button></li>`;
   return `<nav id="sidebar" aria-label="Main navigation">
-    <a class="logo" href="#home" aria-label="AcChess — Play Without Barriers. Go to home">
+    <a class="logo" href="#home">
       ${sv(34,'0 0 34 34','<circle cx="15" cy="9" r="6" fill="#81b64c"/><path d="M9,16H21C20,20 24,24 26,30H4C6,24 10,20 9,16Z" fill="#81b64c"/><rect x="3" y="29" width="24" height="4" rx="2" fill="#6aa337"/>','aria-hidden="true"')}
-      <span class="lg"><span class="wm">Ac<em>Chess</em></span><small>Play Without Barriers</small></span></a>
+      <span class="lg"><span class="wm">Ac<em>Chess</em></span> <small>Play Without Barriers</small><span class="sr-only"> — home</span></span></a>
     <ul class="navlist">
       ${a('menu',I.play(30),'Play')}
       ${a('puzzle',I.puzzle(30),'Puzzles')}
       ${bt('learn',I.cap(30),'Learn')}
       <li><button type="button" class="sb-item" id="moreBtn" aria-expanded="false" aria-controls="moreList"><span class="sb-ico">${I.chev(18)}</span><span>More</span></button>
         <ul id="moreList" class="sublist" hidden>
-          ${a('review','','Game History')}${a('play','','Current game')}
+          ${a('review','','Game Review')}${a('play','','Current game')}
           <li><button type="button" class="sb-item sub" data-act="tournaments"><span>Tournaments</span></button></li>
           <li><button type="button" class="sb-item sub" data-act="variants"><span>Chess Variants</span></button></li>
         </ul></li>
       ${bt('trial',I.gem(28),'Free Trial','')}
-      <li class="sep"><button type="button" class="sb-item acc" data-open-a11y aria-keyshortcuts="Alt+A"><span class="sb-ico">${I.access(26)}</span><span>Accessibility</span></button></li>
     </ul>
     <div class="sb-bottom">
       <button type="button" class="sb-b" data-act="search"><span class="sb-ico">${I.search(24)}</span><span>Search</span></button>
@@ -3293,8 +3528,8 @@ function voiceExamples(){
 function voicePanelHTML(){
   const sup=Voice.supported;
   return `
-  <header class="vp-h"><h2 id="vpT">${I.mic(20)} Voice Controls</h2>
-    <button type="button" class="btn icon" data-voice-close aria-label="Close Voice Controls">${I.close(18)}</button></header>
+  <div class="vp-h"><h2 id="vpT">${I.mic(20)} Voice Controls</h2>
+    <button type="button" class="btn icon" data-voice-close aria-label="Close Voice Controls">${I.close(18)}</button></div>
   <div class="vp-b">
     <p class="vp-help" id="vpHelp">Press the microphone, wait for “Listening”, then say <b>one</b> command. You can also type a command below.</p>
     <p class="vstate" id="vState" aria-hidden="true"></p>
@@ -3357,7 +3592,7 @@ function openVoice(opener){
 function closeVoice(quiet){
   const el=$('#voicePanel');if(!el||!VoiceUI.open)return;
   if(Voice.listening||Voice.preparing)Voice.stop();
-  VoiceUI.open=false;el.hidden=true;document.body.classList.remove('voice-open');
+  VoiceUI.open=false;el.hidden=true;el.innerHTML='';document.body.classList.remove('voice-open');
   const b=$('#btnVoice');if(b)b.setAttribute('aria-expanded','false');
   if(quiet===true)return;
   const o=VoiceUI.opener;
@@ -3409,25 +3644,25 @@ function welcomeBodyHTML(){
     <ul class="welcome-list">${WELCOME_ITEMS.map(([k,a,b])=>`<li class="w-${k}"><b>${a}</b> ${b}</li>`).join('')}</ul>
     <p class="dlg-hint">AcChess is a proposed academic prototype. The opponent is simulated and nothing connects to Chess.com.</p>`;
 }
-function welcomeDismissed(){if(/[?&]welcome=off\b/.test(location.search))return true;try{return sessionStorage.getItem('acchess.welcome')==='1'}catch(e){return false}}
+function welcomeDismissed(){if(/[?&]welcome=off\b/.test(location.search))return true;return Store.get('acchess.welcome')==='1'}
 function mountWelcome(main){
-  if(welcomeDismissed())return;
-  main.insertAdjacentHTML('afterbegin',`<section class="welcome" id="welcome" aria-labelledby="welH">
-    <h2 id="welH">Welcome to AcChess</h2>${welcomeBodyHTML()}
+  const slot=$('#welcomeSlot',main);
+  if(!slot||welcomeDismissed())return;
+  slot.innerHTML=`<section class="welcome" id="welcome" aria-labelledby="welH">
+    <h2 id="welH">New here? Three ways to play</h2>
+    <ul class="wel3">
+      <li><b>Touch or mouse</b><span>Tap a piece, then a highlighted square.</span></li>
+      <li><b>Keyboard</b><span>Arrow keys and Enter on the board. Press <kbd>?</kbd> for all keys.</span></li>
+      <li><b>Voice</b><span>Open Voice Controls, then say “move e2 to e4”. The microphone only starts when you press it.</span></li></ul>
     <div class="btnrow"><button type="button" class="btn primary" id="welOk">Got it</button>
-      <button type="button" class="btn desk-only" id="welKeys">Keyboard shortcuts</button>
-      <button type="button" class="btn desk-only" data-open-a11y>Accessibility Settings</button>
-      <button type="button" class="btn desk-only" data-open-voice>Open Voice Controls</button></div></section>`);
+      <button type="button" class="btn" id="welKeys">Keys and voice commands</button></div></section>`;
   $('#welOk',main).addEventListener('click',()=>{
-    try{sessionStorage.setItem('acchess.welcome','1')}catch(e){}
+    Store.set('acchess.welcome','1');
     $('#welcome').remove();
-    say('Welcome message closed. You can reopen the instructions with the Help button.',{kind:'info',force:true});
+    say('Welcome tips closed. They stay closed on this device. Reopen them from the Help button.',{kind:'info',force:true});
     const h=$('h1',main);if(h)h.focus({preventScroll:true});
   });
-  $('#welKeys',main).addEventListener('click',()=>showKeyHelp());
-}
-function showHelp(){
-  infoDialog('Welcome to AcChess',welcomeBodyHTML(),[{label:'Keyboard shortcuts',onClick:()=>showKeyHelp()}]);
+  $('#welKeys',main).addEventListener('click',()=>showHelp());
 }
 const isTypingTarget=t=>!!t&&(t.isContentEditable||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||
   (t.tagName==='INPUT'&&!/^(checkbox|radio|range|button|submit|reset)$/i.test(t.type||'text')));
@@ -3466,6 +3701,8 @@ function bindPushToTalk(){
   });
 }
 function bindHeader(){
+  $('#quickbar').innerHTML=quickBarHTML();
+  {const hv=document.createElement('div');hv.id='hviz';hv.className='hviz';hv.setAttribute('aria-hidden','true');document.body.appendChild(hv)}
   bindPushToTalk();
   bindViewport();
   $('#btnMore').addEventListener('click',e=>openMore(e.currentTarget));
@@ -3571,24 +3808,26 @@ const REVIEW={
   ]
 };
 const REV_ROWS=['Great','Book','Brilliant','Best','Excellent','Good','Inaccuracy','Mistake','Miss','Blunder'];
-const REV_COL={Great:'#7fa6cc',Book:'#c4a07a',Brilliant:'#26c2a3',Best:'#81b64c',Excellent:'#81b64c',Good:'#a3c585',Inaccuracy:'#f7c631',Mistake:'#ffa459',Miss:'#ff8a7a',Blunder:'#ff6a55'};
+const REV_COL={Great:'#8db4da',Book:'#c4a07a',Brilliant:'#26c2a3',Best:'#81b64c',Excellent:'#81b64c',Good:'#a3c585',Inaccuracy:'#f7c631',Mistake:'#ffa459',Miss:'#ff8a7a',Blunder:'#ff8573'};
 const G={
   tc:{label:'10 min',sec:600},
   play:{game:new Chess(),clock:{w:600,b:600,started:false}},
   menu:{game:new Chess()},
   puzzle:{idx:0,games:PUZZLES.map(p=>new Chess(p.fen)),solved:[false,false]},
   review:{started:false},
-  recDismissed:false,
+  recDismissed:false,prev:null,
   ui:{movesOpen:false}
 };
 function resetPlayClock(){G.play.clock={w:G.tc.sec||0,b:G.tc.sec||0,started:false,warn:{w:{},b:{}}}}
 function paintStrip(sm,id){
   const el=$('#'+(id||'statusStrip'));if(!el)return;
-  el.innerHTML=`<span class="ss-main">${esc(sm.turn)}${sm.thinking?' <em>Opponent is thinking…</em>':''}</span>`+
+  const state=sm.over?'over':sm.error?'error':sm.check?'check':sm.thinking?'wait':'';
+  el.className='statusstrip'+(state?' ss-'+state:'');
+  el.innerHTML=`<span class="ss-main"><span class="ss-ic" aria-hidden="true">${sm.over?'■':sm.error?'✖':sm.check?'⚠':sm.thinking?'◔':'●'}</span> ${esc(sm.turn)}${sm.thinking?' <em>Opponent is thinking…</em>':''}</span>`+
     `<span class="ss-sub">Last move: ${esc(sm.last)}${sm.selected&&sm.selected!=='None'?' · Selected: '+esc(sm.selected):''}</span>`+
-    (sm.viewing!=null?`<span class="ss-warn">Viewing an earlier position (ply ${sm.viewing}) — go to the latest to move</span>`:'')+
-    (sm.check&&!sm.over?'<span class="ss-bad">✖ Check — the king is attacked</span>':'')+
-    (sm.error&&!sm.over?`<span class="ss-bad">✖ ${esc(sm.error)}</span>`:'');
+    (sm.viewing!=null?`<span class="ss-warn">Viewing an earlier position (move ${sm.viewing}). Choose Latest position to keep playing.</span>`:'')+
+    (sm.check&&!sm.over?'<span class="ss-bad">⚠ Check: the king is attacked and must be protected.</span>':'')+
+    (sm.error&&!sm.over?`<span class="ss-bad">✖ ${esc(sm.error)} Pick another square or press Cancel selection.</span>`:'');
 }
 function syncBoardbar(c){
   $$('.js-cancel').forEach(b=>{b.disabled=!c.sel});
@@ -3599,99 +3838,99 @@ const ratingRow=(name,rating,side,bars,extra='')=>
   `${avatar(50)}<div class="pinfo"><span class="pn">${name}</span> <span class="pr">(${rating})</span> ${flagEl}${bars?barsEl(bars):''}<span class="who">${side}</span>${extra}</div>`;
 
 /* =====================================================================
-   SCREEN 1 — Home / Dashboard
+   SCREEN 1 — Home / Dashboard   (one next action, three grouped activities)
    ===================================================================== */
+const REVIEW_END_FEN='rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3';
+function homeResume(){
+  const g=G.play.game,st=g.status(),n=g.moves.length;
+  return {inProgress:n>0&&!st.over,over:st.over,n,turn:g.turn,clock:G.play.clock};
+}
 function homeRender(){
-  const qa=(k,icon,label)=>`<button type="button" class="tg" data-qa="${k}" aria-pressed="${settingOn(k)}"><span class="tgi">${icon}</span><span>${label}</span><span class="st">${settingOn(k)?I.check(12)+' On':'Off'}</span></button>`;
+  const R=homeResume();
   const tcs=[['10 min',600],['5 min',300],['1 min',60],['3 days',null]];
+  const solved=G.puzzle.solved.filter(Boolean).length;
+  const heroSub=R.inProgress
+    ?`Move ${Math.ceil(R.n/2)} · ${cname(R.turn)} to move${G.tc.sec!=null&&!S.untimed?` · ${mmss(R.clock[R.turn]||G.tc.sec)} left on that clock`:''}. Your game is saved until you close this tab.`
+    :`A ${G.tc.label==='3 days'?'3 days per move':G.tc.label} game against a simulated opponent. You play White. Change the time control in the Play Chess card below.`;
   return `<div class="home">
-    <header class="home-head">${avatar(44)}<h1 tabindex="-1">Player1</h1>${flagEl}
-      <div class="streak">${I.flame(40)}<span>0 Day Streak</span></div></header>
+    <header class="home-head">${avatar(44)}<div class="hh-t"><h1 tabindex="-1">Welcome back, Player1</h1>
+      <p class="hh-s">Play with touch, mouse, keyboard or voice.</p></div>
+      <div class="streak">${I.flame(30)}<span>0 day streak</span></div></header>
 
-    <section class="qa" aria-labelledby="qa-h">
-      <h2 id="qa-h">${I.access(20)} Accessibility quick access</h2>
-      <div class="qa-row">
-        <button type="button" class="btn primary" data-open-a11y>${I.gear(18,'currentColor')} Accessibility Settings</button>
-        <button type="button" class="btn primary" data-open-voice>${I.mic(18)} Open Voice Controls</button>
-        ${qa('screenReader',I.ear(18),'Screen reader')}${qa('contrast',I.contrast(18),'High contrast')}${qa('sound',I.sound(18),'Sound')}${qa('speech',I.speaker(18),'Speech')}
+    <div id="welcomeSlot"></div>
+
+    <section class="hero-card" aria-labelledby="hero-h">
+      <div class="hero-tx"><p class="eyebrow">${R.inProgress?'Game in progress':'Next step'}</p>
+        <h2 id="hero-h">${R.inProgress?'Continue your game':'Start playing'}</h2>
+        <p class="hero-sub" id="heroSub">${esc(heroSub)}</p></div>
+      <div class="hero-act">
+        <button type="button" class="gbtn hero" id="playHero">${I.play(26)}<span>${R.inProgress?'Continue game':'Start playing'}</span></button>
+        ${R.inProgress||R.over?'<button type="button" class="btn" id="newGame">Start a new game</button>':''}
       </div>
     </section>
 
-    <div class="home-grid">
-      <section class="playpanel pnl" aria-labelledby="pp-h">
-        <h2 id="pp-h">Play Chess</h2>
-        <div class="tc" role="group" aria-label="Time control">${tcs.map(([l,s])=>`<button type="button" data-tc="${l}" aria-pressed="${G.tc.label===l}">${l}</button>`).join('')}</div>
-        <button type="button" class="gbtn hero" id="playHero">Play Chess</button>
-        <h3>More ways to play</h3>
-        <ul class="more">
-          <li><button type="button" class="mbtn" data-go="play">${I.play(30)}<span>Play Online</span></button></li>
-          <li><button type="button" class="mbtn" data-go="play"><span class="coach-ic">${coachSVG(30,'coach')}</span><span>Play Coach</span></button></li>
-          <li><button type="button" class="mbtn" data-go="menu">${I.hand(30)}<span>Play a Friend</span></button></li>
-          <li><button type="button" class="mbtn" data-act="tournaments">${I.medal(30)}<span>Tournaments</span></button></li>
-        </ul>
-      </section>
+    <section aria-labelledby="feat-h">
+      <h2 id="feat-h" class="sec-title">Choose an activity</h2>
+      <div class="cards3">
+        <article class="card" aria-labelledby="c1-h"><div class="mini" id="hbPlay" role="img" aria-label="Chess starting position"></div>
+          <div class="ctext"><h3 id="c1-h">Play Chess</h3><p>Choose a time control, then start a game.</p>
+            <div class="tc" role="group" aria-label="Time control">${tcs.map(([l])=>`<button type="button" data-tc="${l}" aria-pressed="${G.tc.label===l}">${l}</button>`).join('')}</div></div>
+          <button type="button" class="mbtn" data-go="menu">More ways to play</button></article>
+        <article class="card" aria-labelledby="c2-h"><div class="mini" id="hbPuz" role="img" aria-label="Puzzle preview"></div>
+          <div class="ctext"><h3 id="c2-h">Puzzles</h3><p>${solved} of ${PUZZLES.length} solved. One clear task at a time, with hints.</p></div>
+          <button type="button" class="mbtn" data-go="puzzle">Solve puzzles</button></article>
+        <article class="card" aria-labelledby="c3-h"><div class="mini" id="hbRev" role="img" aria-label="Game review preview"></div>
+          <div class="ctext"><h3 id="c3-h">Game Review</h3><p>Step through a sample game with plain-language notes.</p></div>
+          <button type="button" class="mbtn" data-go="review">Review sample game</button></article>
+      </div>
+    </section>
 
-      <section class="cards" aria-label="Practice and learn">
-        <article class="card"><div class="mini" id="hb1"></div>
-          <div class="ctext"><h3>Puzzles</h3><p>Play to solve · ${G.puzzle.solved.filter(Boolean).length} of ${PUZZLES.length} solved</p></div>
-          <button type="button" class="mbtn" data-go="puzzle">Solve Puzzles</button></article>
-        <article class="card"><div class="mini" id="hb2"></div>
-          <div class="ctext"><h3>Lessons</h3><p>The King</p></div>
-          <button type="button" class="mbtn" data-act="learn">Start lesson</button></article>
-        <article class="card"><div class="mini grass" id="hb3"></div>
-          <div class="ctext"><h3>Play Bots</h3><p>Martinfoot (250)</p></div>
-          <button type="button" class="mbtn" data-go="play">Play Bots</button></article>
-      </section>
-    </div>
-
-    <div class="home-lower">
-      ${G.recDismissed?'':`<section class="sec" aria-labelledby="rm-h" id="recSec"><div class="sec-h"><h2 id="rm-h">Recommended Match</h2>
-          <button type="button" class="btn icon" id="recX" aria-label="Dismiss recommended match">${I.close(16)}</button></div>
-        <div class="rm"><div class="avbig">${I.pawn(60,'#8e8d8a')}</div>
-          <div><p class="nm">SampleOpponent</p><p class="sub">Standard · Rated · 3 days</p><span class="tag">SIMILAR SKILL</span><br>
-          <button type="button" class="gbtn" data-go="play" style="margin-top:10px">Challenge</button></div></div></section>`}
-      <section class="sec" aria-labelledby="gh-h"><div class="sec-h"><h2 id="gh-h">Game History</h2></div>
-        <div class="rm"><div><p class="nm">Player1 vs RivalSample</p><p class="sub">Sample game · 4 moves · review available</p>
-          <button type="button" class="btn" data-go="review" style="margin-top:12px">Review game</button></div></div></section>
-      <section class="sec" aria-labelledby="dp-h"><div class="sec-h"><h2 id="dp-h">Daily Puzzle</h2></div>
-        <div class="rm"><div class="mini" id="hb4"></div>
-          <div><p class="sub">White to move and win.</p>
-          <button type="button" class="btn" data-go="puzzle" style="margin-top:12px">Solve daily puzzle</button></div></div></section>
-    </div>
+    <details class="more-info">
+      <summary>More: sample game, daily puzzle and what is not available</summary>
+      <div class="more-grid">
+        <div class="rm"><div><h3>Sample game history</h3><p class="sub">Player1 vs RivalSample · 4 moves · review available</p>
+          <button type="button" class="btn" data-go="review">Review game</button></div></div>
+        <div class="rm"><div class="mini" id="hbDaily" role="img" aria-label="Daily puzzle preview"></div>
+          <div><h3>Daily puzzle</h3><p class="sub">White to move and win.</p><button type="button" class="btn" data-go="puzzle">Solve daily puzzle</button></div></div>
+        <div class="rm"><div><h3>Not available here</h3>
+          <p class="sub">Online play, friends, bots, coach, lessons and tournaments need servers. This prototype is offline and uses a simulated opponent.</p></div></div>
+      </div>
+    </details>
   </div>`;
 }
 function homeMount(main,dispose){
-  previewBoard($('#hb1'),'6k1/6pp/8/8/8/8/8/5R1K w - - 0 1','Puzzle preview. '+fenSummary('6k1/6pp/8/8/8/8/8/5R1K'));
-  previewBoard($('#hb2'),'8/8/8/8/8/8/8/4K3 w - - 0 1','Lesson preview: a single white king on e1.');
-  const g=previewBoard($('#hb3'),START_FEN,'Bot preview: the starting position with all pieces.',PAL_GRASS);
-  previewBoard($('#hb4'),'8/6q1/6b1/4p2k/P2R4/8/8/6K1 w - - 0 1','Daily puzzle preview. '+fenSummary('8/6q1/6b1/4p2k/P2R4/8/8/6K1'));
+  previewBoard($('#hbPlay'),START_FEN,'Chess starting position with all pieces.');
+  previewBoard($('#hbPuz'),'6k1/6pp/8/8/8/8/8/5R1K w - - 0 1','Puzzle preview. '+fenSummary('6k1/6pp/8/8/8/8/8/5R1K'));
+  previewBoard($('#hbRev'),REVIEW_END_FEN,'Game review preview: the final position of the sample game.');
+  previewBoard($('#hbDaily'),'8/6q1/6b1/4p2k/P2R4/8/8/6K1 w - - 0 1','Daily puzzle preview. '+fenSummary('8/6q1/6b1/4p2k/P2R4/8/8/6K1'));
   main.addEventListener('click',e=>{
     const t=e.target.closest('[data-tc]');
     if(t){
-      const l=t.dataset.tc;G.tc=l==='3 days'?{label:l,sec:null}:{label:l,sec:l==='5 min'?300:l==='1 min'?60:600};resetPlayClock();
+      const l=t.dataset.tc;G.tc=l==='3 days'?{label:l,sec:null}:{label:l,sec:l==='5 min'?300:l==='1 min'?60:600};
+      if(!G.play.game.moves.length)resetPlayClock();
       $$('[data-tc]',main).forEach(b=>b.setAttribute('aria-pressed',String(b===t)));
-      say(`Time control set to ${l}.`,{kind:'info'});return;
+      const sub=$('#heroSub');if(sub&&!homeResume().inProgress)sub.textContent=`A ${l==='3 days'?'3 days per move':l} game against a simulated opponent. You play White. Change the time control in the Play Chess card below.`;
+      say(`Time control set to ${l}.${homeResume().inProgress?' It applies to your next new game.':''}`,{kind:'info'});return;
     }
     if(e.target.closest('#playHero')){
       if(!G.play.game.moves.length)resetPlayClock();
       navigate('play');return;
     }
-    if(e.target.closest('#recX')){
-      G.recDismissed=true;$('#recSec').remove();say('Recommended match dismissed.',{kind:'info'});
-      const h=$('#gh-h');h&&h.closest('section').querySelector('button').focus();return;
+    if(e.target.closest('#newGame')){
+      confirmAction({title:'Start a new game?',message:'Your current game and its move history will be cleared.',confirmLabel:'Start new game',always:homeResume().inProgress,
+        onConfirm:()=>{G.play.game.reset();G.play.game.ended=null;resetPlayClock();say('New game ready. You are White.',{kind:'game'});navigate('play')}});
     }
   });
 }
 
 /* =====================================================================
-   SCREEN 2 — Playing
+   SCREEN 2 — Playing   (board first; status above, controls under, history beside)
    ===================================================================== */
 function playRender(){
-  return `${toolbarHTML()}
-  <div class="lay">
+  return `<div class="lay">
     <section class="bcol" aria-label="Game board and players">
       <h1 class="sr-only" tabindex="-1">Playing a game against SpainSample</h1>
-      <div class="statusstrip m-only" id="statusStrip"></div>
+      <div class="statusstrip" id="statusStrip" role="group" aria-label="Game status"></div>
       <div class="prow">${ratingRow('SpainSample',194,'Black · simulated opponent',4)}
         <div class="clock" id="ckB" role="timer">—</div></div>
       <div class="bwrap"><div id="board"></div></div>
@@ -3702,42 +3941,31 @@ function playRender(){
     </section>
     <section class="gpanel pnl" aria-label="Game panel">
       <button type="button" class="gp-toggle m-only" id="gpToggle" aria-expanded="false" aria-controls="gpCollapse">
-        <span>Moves and game info</span><span class="gp-count" id="gpCount"></span><span class="gp-chev" aria-hidden="true">${I.chev(18,'currentColor')}</span></button>
+        <span>Move history and game info</span><span class="gp-count" id="gpCount"></span><span class="gp-chev" aria-hidden="true">${I.chev(18,'currentColor')}</span></button>
       <div class="gp-collapse" id="gpCollapse" data-open="false">
-      <div class="gtabs" role="group" aria-label="Game sections">
-        <button type="button" aria-current="true">${I.stopwatch()}<span>Play</span></button>
-        <button type="button" data-go="menu">${I.plusbox()}<span>New Game</span></button>
-        <button type="button" data-go="review">${I.checker()}<span>Games</span></button>
-        <button type="button" data-act="players">${I.players()}<span>Players</span></button>
-      </div>
       <div class="subtabs" role="tablist" aria-label="Game information">
         <button type="button" role="tab" id="tabMoves" aria-selected="true" aria-controls="pMoves">Moves</button>
-        <button type="button" role="tab" id="tabChat" aria-selected="false" aria-controls="pChat" tabindex="-1">Chat</button>
-        <button type="button" role="tab" id="tabInfo" aria-selected="false" aria-controls="pInfo" tabindex="-1">Info</button>
+        <button type="button" role="tab" id="tabInfo" aria-selected="false" aria-controls="pInfo" tabindex="-1">Game info</button>
       </div>
       <div class="tabpanel" id="pMoves" role="tabpanel" aria-labelledby="tabMoves">
-        <div class="movehead"><span>Starting Position</span><button type="button" class="ib" data-showinfo aria-label="Game information">${I.info(18)}</button></div>
         <ol class="movelist" id="moves" aria-label="Move history"></ol>
       </div>
-      <div class="tabpanel" id="pChat" role="tabpanel" aria-labelledby="tabChat" hidden>
-        <p class="pad">Chat is not connected. AcChess is an offline prototype with a simulated opponent, so there is no real person to chat with.</p></div>
       <div class="tabpanel" id="pInfo" role="tabpanel" aria-labelledby="tabInfo" hidden>
         <dl class="info-dl pad" id="infoDl"></dl></div>
       </div>
       <div class="result" id="resultBar" hidden role="status"></div>
-      <p class="matchinfo"><b>Player1</b> (217) vs. <b>SpainSample</b> (194) <span id="tcLabel"></span><br>win +141 / draw -10 / lose -117</p>
       <div class="gbottom">
-        <div class="ctrls" role="group" aria-label="Move history controls">
+        <div class="ctrls" role="group" aria-label="Move navigation: look back through the game">
           <button type="button" id="cFirst" aria-label="First position">${I.first()}</button>
           <button type="button" id="cPrev" aria-label="Previous move">${I.prev()}</button>
           <button type="button" id="cPlay" class="big" aria-label="Replay moves">${I.playbtn()}</button>
           <button type="button" id="cNext" aria-label="Next move">${I.next()}</button>
           <button type="button" id="cLast" aria-label="Latest position">${I.last()}</button>
         </div>
-        <div class="gfoot">
-          <button type="button" id="bDraw">½ Draw</button>
+        <div class="gfoot" role="group" aria-label="Game actions">
+          <button type="button" id="bDraw">½ Offer draw</button>
           <button type="button" id="bResign">${I.flag(20)}<span id="resignL">Abort</span></button>
-          <button type="button" id="bFlip" class="flip" aria-label="Flip board">${I.flip()}</button>
+          <button type="button" id="bFlip" class="flip" aria-label="Flip board">${I.flip()}<span class="blabel2">Flip</span></button>
         </div>
       </div>
     </section>
@@ -3780,10 +4008,17 @@ function playMount(main,dispose){
       };
       html+=`<li class="mrow"><span class="n">${i/2+1}.</span>${cell(mv[i],i+1)}${cell(mv[i+1],i+2)}</li>`;
     }
+    if(!mv.length)html='<li class="empty-note">No moves yet. Select a white piece to begin.</li>';
     const movesEl=$('#moves');
     movesEl.innerHTML=html;
     const cur=movesEl.querySelector('.cur');
     if(cur){const t=cur.offsetTop-movesEl.clientHeight+cur.offsetHeight*2;movesEl.scrollTop=Math.max(0,t)}else movesEl.scrollTop=movesEl.scrollHeight;
+  }
+  function infoRows(){
+    $('#infoDl').innerHTML=statusRowsHTML([
+      ['Players','Player1 (217) · White — you<br>SpainSample (194) · Black — simulated opponent'],['Time control',esc(G.tc.label)+(S.untimed?' (untimed play is on)':'')],
+      ['Rules','Built-in engine: legal moves, check, checkmate, castling, en passant, promotion, stalemate'],
+      ['Opponent','Scripted replies (prefers mate, captures, checks). Not a chess engine and not a real player.']]);
   }
   function update(c){
     renderMoves(c);paintClocks();
@@ -3796,17 +4031,18 @@ function playMount(main,dispose){
     $('#bResign').disabled=over;
     syncBoardbar(c);paintStrip(sm);
     $('#gpCount').textContent=c.game.moves.length?`${c.game.moves.length} move${c.game.moves.length===1?'':'s'}`:'no moves yet';
-    $('#tcLabel').textContent=`(${G.tc.label})`;
+    infoRows();
     const rb=$('#resultBar');
     if(over){rb.hidden=false;rb.innerHTML=`<b>${esc(resultText(c.game.status()))}</b> <button type="button" class="btn sm primary" id="bNew">New game</button>`}
     else rb.hidden=true;
-    $('#dkStatus').innerHTML=statusRowsHTML([
+    const ds=$('#dkStatus');
+    if(ds)ds.innerHTML=statusRowsHTML([
       ['Turn',esc(sm.turn)+(sm.thinking?' <em>Opponent is thinking…</em>':'')],
       ['Selected',esc(sm.selected)],
       ['Last move',esc(sm.last)],
       ['Legal moves',over?'—':String(sm.legalCount)],
-      ...(sm.viewing!=null?[['Viewing',`position after ply ${sm.viewing} — go to the latest to move`,'warn']]:[]),
-      ...(sm.check&&!over?[['Alert','✖ Check — king is attacked','bad']]:[]),
+      ...(sm.viewing!=null?[['Viewing',`position after move ${sm.viewing}. Go to the latest to move.`,'warn']]:[]),
+      ...(sm.check&&!over?[['Alert','⚠ Check: the king is attacked','bad']]:[]),
       ...(sm.error?[['Error','✖ '+esc(sm.error),'bad']]:[])
     ]);
   }
@@ -3871,69 +4107,66 @@ function playMount(main,dispose){
         break;
       case'bNew':confirmAction({title:'Start a new game?',message:'The finished game and its move history will be cleared.',confirmLabel:'New game',onConfirm:()=>ctrl.reset()});break;
     }
-    if(e.target.closest('[data-showinfo]'))selectTab('tabInfo');
   });
-  /* tabs */
+  /* tabs: Moves | Game info */
+  const TABS=['tabMoves','tabInfo'];
   function selectTab(id){
-    for(const t of['tabMoves','tabChat','tabInfo']){
+    for(const t of TABS){
       const b=$('#'+t),on=t===id;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;
       $('#'+b.getAttribute('aria-controls')).hidden=!on;
     }
-    if(id==='tabInfo')$('#infoDl').innerHTML=statusRowsHTML([
-      ['Event','Offline demonstration game'],['White','Player1 (217) — you'],['Black','SpainSample (194) — simulated opponent'],
-      ['Time control',G.tc.label],['Rules','Built-in engine: legal moves, check, checkmate, castling, en passant, promotion, stalemate'],
-      ['Opponent','Scripted replies (prefers mate, captures, checks). Not a chess engine and not a real player.']]);
   }
   $('.subtabs').addEventListener('click',e=>{const t=e.target.closest('[role=tab]');if(t)selectTab(t.id)});
   $('.subtabs').addEventListener('keydown',e=>{
     const tabs=$$('[role=tab]',$('.subtabs')),i=tabs.indexOf(document.activeElement);
     if(i<0)return;
-    let n=null;if(e.key==='ArrowRight')n=(i+1)%3;else if(e.key==='ArrowLeft')n=(i+2)%3;
+    let n=null;if(e.key==='ArrowRight'||e.key==='ArrowLeft')n=(i+1)%tabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;
     if(n!=null){e.preventDefault();selectTab(tabs[n].id);tabs[n].focus()}
   });
   mountDock('play',dispose,()=>ctrl);
 }
 
 /* =====================================================================
-   SCREEN 3 — Game Review
+   SCREEN 3 — Game Review   (position · timeline · explanation, all sample data)
    ===================================================================== */
 function reviewRender(){
-  const n=REVIEW.moves.length;
-  return `${toolbarHTML()}
-  <div class="lay lay-review">
+  return `<div class="lay lay-review">
     <section class="bcol" aria-label="Review board and players">
       <h1 class="sr-only" tabindex="-1">Game review: Player1 versus RivalSample</h1>
-      <div class="statusstrip m-only" id="rvStrip"></div>
-      <div class="prow">${ratingRow('RivalSample',529,'Black',0)}<div class="clock white" aria-label="Black clock 30:00">${I.clock(22)}<span>30:00</span></div></div>
-      <div class="bwrap evwrap"><div class="evalbar" role="img" aria-label="Evaluation bar (sample): Black has a forced checkmate in one"><span>M1</span></div><div id="board"></div></div>
-      <div class="prow">${ratingRow('Player1',271,'White · you',0)}<div class="clock gray" aria-label="White clock 29:37"><span>29:37</span></div></div>
-      <p class="kbhint">Keyboard: <kbd>←↑↓→</kbd> move · <kbd>Page Up / Page Down</kbd> previous / next move · <kbd>V</kbd> describe highlights · <kbd>R</kbd> read board</p>
+      <div class="statusstrip" id="rvStrip" role="group" aria-label="Reviewed position"></div>
+      <div class="prow">${ratingRow('RivalSample',529,'Black',0)}</div>
+      <div class="bwrap evwrap"><div class="evalbar" role="img" aria-label="Evaluation bar (sample data): Black has a forced checkmate in one"><span>M1</span></div><div id="board"></div></div>
+      <div class="prow">${ratingRow('Player1',271,'White · you',0)}</div>
+      <div class="boardbar" id="boardbar" role="group" aria-label="Move navigation">
+        <button type="button" class="btn" id="rFirst" aria-label="First position">${I.first(18)}<span>First</span></button>
+        <button type="button" class="btn" id="rPrev" aria-label="Previous move">${I.prev(18)}<span>Previous</span></button>
+        <button type="button" class="btn primary" id="rNext" aria-label="Next move"><span>Next</span>${I.next(18)}</button>
+        <button type="button" class="btn" id="rLast" aria-label="Last position"><span>Last</span>${I.last(18)}</button>
+      </div>
+      <p class="kbhint">Keyboard: <kbd>←↑↓→</kbd> move · <kbd>Page Up / Down</kbd> previous / next move · <kbd>V</kbd> describe highlights · <kbd>R</kbd> read board</p>
     </section>
     <section class="rpanel pnl" aria-label="Game review panel">
-      <div class="rhead">${I.reviewic(30)}<h2>Game Review</h2></div>
-      <div class="rnav" role="group" aria-label="Review controls">
-        <button type="button" id="rFirst" aria-label="First position">${I.first()}</button>
-        <button type="button" id="rPrev" aria-label="Previous move">${I.prev()}</button>
-        <span class="rpos" id="rPos" aria-hidden="true"></span>
-        <button type="button" id="rNext" aria-label="Next move">${I.next()}</button>
-        <button type="button" id="rLast" aria-label="Last position">${I.last()}</button>
-      </div>
-      <p class="sample-note" role="note">Sample review: the labels and graph below are pre-written for this demonstration. No chess engine is connected and nothing here is a real analysis.</p>
+      <div class="rhead"><h2>Game review</h2><span class="tagS" title="Sample data">SAMPLE DATA</span></div>
+      <p class="sample-note" role="note">Sample review: the labels, graph and commentary are pre-written for this demonstration. No chess engine is connected, so nothing here is a real analysis.</p>
+      <div class="rkey"><span class="rpos" id="rPos"></span><button type="button" class="btn sm" id="rKey">${I.bulb(16)} Jump to key moment</button></div>
       <div class="rscroll">
-        <div class="coachrow"><span class="coach-av">${coachSVG(96,'coach')}</span><div class="bubble" id="rBubble"></div></div>
-        <div class="graph" id="rGraph"></div>
-        <details class="gdata"><summary>Evaluation graph as text</summary><ol id="rGraphTxt"></ol></details>
-        <p class="visual" id="rVisual"></p>
-        <h3 class="sr-only">Moves</h3>
-        <ol class="rmoves" id="rMoves" aria-label="Game moves"></ol>
-        <div class="pl"><span></span><span class="nm">Player1</span><span></span><span class="nm">RivalSample</span>
-          <span class="lab">Players</span><span class="box">${I.pawn(60,'#9a9996')}</span><span></span><span class="box g">${I.pawn(60,'#9a9996')}</span></div>
-        <div class="pl acc-row"><span class="lab">Accuracy</span><span class="acc w" aria-label="Player1 accuracy not calculated"></span><span></span><span class="acc" aria-label="RivalSample accuracy 100.0 (sample)">100.0</span></div>
-        <table class="rstats"><caption class="sr-only">Move quality counts from the sample review</caption>
-          <thead><tr><th scope="col">Type</th><th scope="col">Player1</th><th scope="col"><span class="sr-only">Symbol</span></th><th scope="col">RivalSample</th></tr></thead>
-          <tbody id="rStats"></tbody></table>
+        <section aria-labelledby="rt-h"><h3 id="rt-h">Move timeline</h3>
+          <ol class="rmoves" id="rMoves" aria-label="Game moves"></ol></section>
+        <section class="rexp" aria-labelledby="rx-h"><h3 id="rx-h">What is on the board</h3>
+          <dl class="rexp-dl">
+            <dt>This position</dt><dd id="rxPos"></dd>
+            <dt>Sample commentary <span class="tagS">SAMPLE</span></dt><dd id="rBubble"></dd>
+            <dt>Highlights and arrows</dt><dd id="rVisual"></dd>
+            <dt>Evaluation <span class="tagS">SAMPLE</span></dt><dd id="rxEval"></dd>
+          </dl></section>
+        <section aria-labelledby="rg-h"><h3 id="rg-h">Evaluation graph <span class="tagS">SAMPLE</span></h3>
+          <div class="graph" id="rGraph"></div>
+          <details class="gdata"><summary>Evaluation graph as text</summary><ol id="rGraphTxt"></ol></details></section>
+        <details class="gdata"><summary>Move-quality counts (sample labels)</summary>
+          <table class="rstats"><caption class="sr-only">Move quality counts from the sample review</caption>
+            <thead><tr><th scope="col">Type</th><th scope="col">Player1</th><th scope="col"><span class="sr-only">Symbol</span></th><th scope="col">RivalSample</th></tr></thead>
+            <tbody id="rStats"></tbody></table></details>
       </div>
-      <div class="rfoot"><button type="button" class="gbtn" id="rStart">Start Review</button></div>
     </section>
     ${dockHTML('review')}
   </div>`;
@@ -3943,11 +4176,11 @@ function reviewMount(main,dispose){
   let ready=false;
   const ctrl=new ReviewController({host:$('#board'),data:REVIEW,onChange:c=>{if(ready)update(c)}});
   Ctx.kind='review';Ctx.ctrl=ctrl;dispose.push(()=>ctrl.destroy());
-  // stats from the sample notes
+  const keyPly=Math.max(1,REVIEW.notes.findIndex(x=>x.cls==='Blunder')+1);
   const cnt={w:{},b:{}};
   REVIEW.notes.forEach((nt,i)=>{const c=i%2===0?'w':'b';cnt[c][nt.cls]=(cnt[c][nt.cls]||0)+1});
   $('#rStats').innerHTML=REV_ROWS.map(k=>`<tr><th scope="row">${k}</th><td style="color:${REV_COL[k]}">${cnt.w[k]||0}</td><td class="ic">${REV_ICONS[k]}</td><td style="color:${REV_COL[k]}">${cnt.b[k]||0}</td></tr>`).join('');
-  // graph
+  $('#rKey').innerHTML=`${I.bulb(16)} Jump to key moment (move ${Math.ceil(keyPly/2)})`;
   const W=396,H=98,pts=REVIEW.evals.map((e,i)=>[i*(W/(REVIEW.evals.length-1)),H/2-e.v*(H/2-8)]);
   const area=`M0,${H} `+pts.map(p=>`L${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')+` L${W},${H} Z`;
   const gmark=i=>`<line x1="${pts[i][0]}" x2="${pts[i][0]}" y1="0" y2="${H}" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/><circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="5" fill="#ffd166" stroke="#000" stroke-width="2"/>`;
@@ -3955,70 +4188,58 @@ function reviewMount(main,dispose){
   function update(c){
     const i=c.i;
     $('#rPos').textContent=`Move ${i} of ${n}`;
-    {const rs=$('#rvStrip'),nn=c.note(i);if(rs)rs.innerHTML=`<span class="ss-main">Move ${i} of ${n}${i?` · ${esc(cname(c.game.moves[i-1].c))} ${esc(c.game.moves[i-1].san)}`:' · starting position'}</span><span class="ss-sub">${nn?`Sample mark: ${esc(nn.cls)}${nn.sym?' ('+esc(nn.sym)+')':''} — demonstration data`:'Sample review — not engine analysis'}</span>`}
+    const nt=c.note(i),rec=i?c.game.moves[i-1]:null;
+    {const rs=$('#rvStrip');if(rs)rs.innerHTML=`<span class="ss-main">${i?`Move ${i} of ${n} · ${esc(cname(rec.c))} played ${esc(rec.san)}`:`Starting position · move 0 of ${n}`}</span><span class="ss-sub">${nt?`Sample mark: ${esc(nt.cls)}${nt.sym?' ('+esc(nt.sym)+')':''} — demonstration data`:'Sample review — not engine analysis'}</span>`}
     $('#rFirst').disabled=$('#rPrev').disabled=i===0;
     $('#rNext').disabled=$('#rLast').disabled=i===n;
-    const nt=c.note(i);
-    $('#rBubble').textContent=i===0?'Getting mated out of the opening happens to everyone. With some opening review, we can make sure it doesn’t happen again!'
-      :(nt?nt.text:'');
-    $('#rVisual').innerHTML=`<b>Board marks:</b> ${esc(c.visualText())}`;
+    $('#rxPos').textContent=c.summaryText().replace(/ Sample review mark:.*$/,'')+(i===n?' '+resultText(c.game.status()):'');
+    $('#rBubble').textContent=i===0?'Getting mated out of the opening happens to everyone. With some opening review, we can make sure it doesn’t happen again!':(nt?nt.text:'');
+    $('#rVisual').textContent=c.visualText();
+    $('#rxEval').textContent=`${REVIEW.evals[i].t} (sample label, not engine output).`;
     $('#rGraph').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Evaluation graph (illustrative sample, not engine output): ${esc(REVIEW.evals.map((e,k)=>(k?`after move ${k}`:'start')+' '+e.t).join('; '))}. Currently showing ${i===0?'the start':'after move '+i}.">
       <rect width="${W}" height="${H}" fill="#403d39"/><path d="${area}" fill="#fff"/>
       <line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" stroke="#8b8987" stroke-width="1.5"/><g style="color:#ffd166">${gmark(i)}</g></svg>`;
-    $('#rMoves').innerHTML=c.game.moves.map((r,k)=>{
+    $('#rMoves').innerHTML=`<li><button type="button" data-rply="0" ${i===0?'aria-current="true"':''} class="${i===0?'cur':''}"><span class="mn">0</span> <b>Start</b></button></li>`+
+      c.game.moves.map((r,k)=>{
       const nn=REVIEW.notes[k];
       return `<li><button type="button" data-rply="${k+1}" ${c.i===k+1?'aria-current="true"':''} class="${c.i===k+1?'cur':''}">
         <span class="mn">${Math.ceil((k+1)/2)}${r.c==='w'?'.':'…'}</span> <b>${esc(r.san)}</b>
         <span class="mk2" style="color:${REV_COL[nn.cls]}">${nn.sym||''} ${esc(nn.cls)}</span></button></li>`}).join('');
-    $('#rStart').textContent=G.review.started?'Restart review':'Start Review';
   }
   ready=true;update(ctrl);
   main.addEventListener('click',e=>{
     const m=e.target.closest('[data-rply]');if(m){ctrl.go(+m.dataset.rply);return}
     const id=(e.target.closest('button')||{}).id;
     if(id==='rFirst')ctrl.go(0);else if(id==='rPrev')ctrl.go(ctrl.i-1);else if(id==='rNext')ctrl.go(ctrl.i+1);else if(id==='rLast')ctrl.go(n);
-    else if(id==='rStart'){
-      G.review.started=true;ctrl.go(0,false);ctrl.go(1);
-      const f=$('#rMoves button');f&&f.focus();
-    }
+    else if(id==='rKey')ctrl.go(keyPly);
   });
   mountDock('review',dispose,()=>ctrl);
-  const hint=$('#bCancel');if(hint)hint.remove();
 }
 
 /* =====================================================================
-   SCREEN 4 — Puzzle
+   SCREEN 4 — Puzzle   (objective · board · Hint / Try again / Next · feedback)
    ===================================================================== */
 function puzzleRender(){
-  return `${toolbarHTML()}
-  <div class="lay lay-puzzle">
+  return `<div class="lay lay-puzzle">
     <section class="bcol" aria-label="Puzzle board">
       <h1 class="sr-only" tabindex="-1">Puzzles</h1>
-      <div class="pobj m-only" id="pObj"></div>
+      <div class="pobj" id="pObj" role="group" aria-label="Puzzle objective"></div>
       <div class="bwrap"><div id="board"></div></div>
       ${boardbarHTML('puzzle')}
       <p class="kbhint">Keyboard: <kbd>←↑↓→</kbd> move · <kbd>Enter</kbd> select / move · <kbd>H</kbd> hint · <kbd>R</kbd> read the puzzle · <kbd>?</kbd> all keys</p>
     </section>
-    <section class="ppanel pnl" aria-label="Puzzle panel">
-      <div class="phead"><button type="button" class="ib" data-go="home" aria-label="Back to home">${I.back(26)}</button>
-        ${I.puzzle(40,String(G.puzzle.idx+1))}<h2>Puzzles</h2>
-        <div class="sp"><button type="button" class="ib" id="pSpeech" aria-pressed="${S.speech}" aria-label="Spoken announcements">${I.speaker()}</button>
-          <button type="button" class="ib" id="pAbout" aria-label="About these puzzles">${I.layers()}</button></div></div>
+    <section class="ppanel pnl" aria-label="Puzzle feedback and progress">
+      <div class="phead">${I.puzzle(34,String(G.puzzle.idx+1))}<h2>Puzzles</h2><span class="tagS" title="Built-in demonstration puzzles">DEMO PUZZLES</span></div>
       <div class="pbody">
-        <div class="pcoach"><span class="coach-av p">${coachSVG(84,'coach')}</span>
-          <div class="pbubble"><div class="t"><i id="pchk" aria-hidden="true"></i><span id="ptt">White to move</span></div>
-            <div id="ptx"></div></div></div>
-        <p class="demo-note" role="note">Demonstration puzzles: ${PUZZLES.length} built-in positions with stored solutions.</p>
-        <div class="pscore" id="pscore" aria-label="Puzzles solved">0</div>
-        <div class="pbar"><div class="bar" role="progressbar" aria-label="Puzzles solved" aria-valuemin="0" aria-valuemax="${PUZZLES.length}" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>${I.puzzle(36,String(PUZZLES.length))}</div>
-      </div>
-      <div class="pfoot">
-        <div class="btnrow2"><button type="button" class="mbtn js-hint" id="hint">${I.bulb(24)}<span>Hint</span></button>
-          <button type="button" class="mbtn js-retry" id="pRetry">${I.restart(18)}<span>Try again</span></button></div>
-        <div class="row">
-          <button type="button" class="ib" data-open-a11y aria-label="Accessibility settings">${I.gear(26,'#a7a6a4')}</button><span class="grow" id="pNum"></span>
-          <button type="button" class="ib" id="pPrev" aria-label="Previous puzzle">${I.prev(26)}<span class="blabel">Previous puzzle</span></button>
-          <button type="button" class="ib" id="pNext" aria-label="Next puzzle">${I.next(26)}<span class="blabel">Next puzzle</span></button></div>
+        <div class="pfb" id="pFb"><i class="pfb-i" id="pchk" aria-hidden="true"></i>
+          <div><b id="ptt">Your move</b><p id="ptx"></p></div></div>
+        <div class="phints" id="pHints" hidden><h3>Hints used</h3><ol id="pHintList"></ol></div>
+        <h3 class="sec-title" id="pl-h">Progress</h3>
+        <div class="pbar"><div class="bar" role="progressbar" aria-labelledby="pl-h" aria-valuetext="0 of ${PUZZLES.length} solved" aria-valuemin="0" aria-valuemax="${PUZZLES.length}" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>
+          <span class="pcount" id="pscore"></span></div>
+        <ul class="plist" id="pList" aria-label="Choose a puzzle"></ul>
+        <details class="gdata"><summary>About these puzzles</summary>
+          <p>${PUZZLES.length} built-in demonstration puzzles with stored solutions. Every move is checked by the prototype’s rules engine; a move counts as correct only if it matches the stored solution or checkmates. There is no puzzle database or rating system.</p></details>
       </div>
     </section>
     ${dockHTML('puzzle')}
@@ -4039,103 +4260,109 @@ function puzzleMount(main,dispose){
   function update(c){
     const P=PUZZLES[PS.idx],solved=PS.solved[PS.idx];
     c.solved=solved;
-    const done=PS.solved.filter(Boolean).length;
-    $('#pNum').textContent=`Puzzle ${PS.idx+1} of ${PUZZLES.length}`;
-    $('#pscore').textContent=String(done);
+    const done=PS.solved.filter(Boolean).length,used=Math.min(c.hints||0,P.hints.length);
+    $('#pscore').textContent=`${done} of ${PUZZLES.length} solved`;
     $('#pfill').style.width=(done/PUZZLES.length*100)+'%';
-    $('#pbar').setAttribute('aria-valuenow',String(done));
-    const chk=$('#pchk');
-    if(solved){chk.className='ok';chk.innerHTML=I.check(16);$('#ptt').textContent='Solved!';
-      $('#ptx').textContent=`${P.title}: well done. ${c.game.moves.length?c.game.moves[c.game.moves.length-1].san+' is checkmate.':''}`}
-    else if(c.lastError){chk.className='bad';chk.textContent='✖';$('#ptt').textContent='Not the move';$('#ptx').textContent=c.lastError+' Try again.'}
-    else{chk.className='';chk.textContent='';$('#ptt').textContent='White to move';
-      $('#ptx').textContent=c.hints?`Hint ${Math.min(c.hints,P.hints.length)}: ${P.hints[Math.min(c.hints,P.hints.length)-1]}`:'In this puzzle, it’s your turn as white and you can win in just one move! Can you make the move?'}
-    {const po=$('#pObj');if(po){
-      const icon=solved?'✔':(c.lastError?'✖':'●');
-      po.className='pobj m-only '+(solved?'ok':c.lastError?'bad':'');
-      po.innerHTML=`<b>${icon} ${esc($('#ptt').textContent)} <span class="pn-num">· Puzzle ${PS.idx+1} of ${PUZZLES.length}</span></b><span>${esc($('#ptx').textContent)}</span>`}}
-    $$('.js-hint').forEach(b=>{b.disabled=solved});
+    $('#pbar').setAttribute('aria-valuenow',String(done));$('#pbar').setAttribute('aria-valuetext',`${done} of ${PUZZLES.length} solved`);
+    const chk=$('#pchk'),fb=$('#pFb');
+    let tone='',title,text;
+    if(solved){tone='ok';title='Solved';text=`${P.title}: well done. ${c.game.moves.length?c.game.moves[c.game.moves.length-1].san+' is checkmate.':''} Choose Next puzzle when you are ready.`}
+    else if(c.lastError){tone='bad';title='Not the move';text=`${c.lastError} Your move was taken back and the position is as it was. Try again, or use Hint.`}
+    else{title='Your move';text=used?`Hint ${used}: ${P.hints[used-1]}`:'Find the winning move. AcChess checks your move as soon as you make it.'}
+    chk.className='pfb-i '+tone;chk.textContent=tone==='ok'?'✔':tone==='bad'?'✖':'●';
+    fb.className='pfb '+tone;$('#ptt').textContent=title;$('#ptx').textContent=text;
+    {const hs=$('#pHints');hs.hidden=!used;$('#pHintList').innerHTML=P.hints.slice(0,used).map(h=>`<li>${esc(h)}</li>`).join('')}
+    {const po=$('#pObj');
+      po.className='pobj '+tone;
+      po.innerHTML=`<span class="po-n">Puzzle ${PS.idx+1} of ${PUZZLES.length} · ${esc(P.title)}</span><b>${solved?'✔ Solved':'White to move'}</b><span>${esc(P.intro)}</span>`}
+    $$('.js-hint').forEach(b=>{b.disabled=solved;b.innerHTML=`${I.bulb(18)} Hint <span class="cnt">${used}/${P.hints.length}</span>`});
     $$('.js-retry').forEach(b=>{b.disabled=!solved&&!c.game.moves.length&&!c.hints&&!c.lastError});
-    const sm=c.summary();
-    $('#dkStatus').innerHTML=statusRowsHTML([
-      ['Puzzle',`${PS.idx+1} of ${PUZZLES.length} — ${esc(P.title)}`],['Task',esc(P.intro)],['Selected',esc(sm.selected)],
+    $$('.js-next').forEach(b=>b.classList.toggle('primary',solved));
+    $('#pList').innerHTML=PUZZLES.map((p,k)=>`<li><button type="button" class="plink${k===PS.idx?' cur':''}" data-pz="${k}" ${k===PS.idx?'aria-current="true"':''}><span>Puzzle ${k+1}: ${esc(p.title)}</span><span class="pst">${PS.solved[k]?'✔ Solved':'Not solved'}</span></button></li>`).join('');
+    const ds=$('#dkStatus'),sm=c.summary();
+    if(ds)ds.innerHTML=statusRowsHTML([
+      ['Puzzle',`${PS.idx+1} of ${PUZZLES.length}: ${esc(P.title)}`],['Task',esc(P.intro)],['Selected',esc(sm.selected)],
       ['Result',solved?'✔ Solved':'Not solved yet',solved?'ok':''],['Hints used',String(c.hints||0)],
       ...(c.lastError&&!solved?[['Error','✖ '+esc(c.lastError),'bad']]:[])
     ]);
     syncBoardbar(c);
   }
   load();
-  $('#pSpeech').addEventListener('click',()=>{toggleSetting('speech');$('#pSpeech').setAttribute('aria-pressed',String(S.speech))});
-  settingSubs.push(()=>{const b=$('#pSpeech');if(b)b.setAttribute('aria-pressed',String(S.speech))});
   $$('.js-hint').forEach(b=>b.addEventListener('click',()=>ctrl.hint()));
   $$('.js-retry').forEach(b=>b.addEventListener('click',()=>{PS.solved[PS.idx]=false;ctrl.solved=false;ctrl.resetPuzzle()}));
   const go=d=>{PS.idx=(PS.idx+d+PUZZLES.length)%PUZZLES.length;load();say(`Puzzle ${PS.idx+1} of ${PUZZLES.length}: ${PUZZLES[PS.idx].title}. ${PUZZLES[PS.idx].intro}`,{kind:'game'})};
-  $('#pPrev').addEventListener('click',()=>go(-1));$('#pNext').addEventListener('click',()=>go(1));
-  $('#pAbout').addEventListener('click',()=>infoDialog('About these puzzles',
-    `<p>These are ${PUZZLES.length} built-in demonstration puzzles with stored solutions. Every move is checked by the prototype’s rules engine; a move is only called correct if it matches the stored solution or checkmates.</p><p>There is no puzzle database or rating system.</p>`));
+  $$('.js-next').forEach(b=>b.addEventListener('click',()=>go(1)));
   main.addEventListener('click',e=>{
-    const b=e.target.closest('button');
-    if(b&&b.id==='bUndo'){/* handled by dock */}
+    const z=e.target.closest('[data-pz]');
+    if(z&&+z.dataset.pz!==PS.idx){go(+z.dataset.pz-PS.idx);const f=$('#pList [aria-current]');f&&f.focus()}
   });
   mountDock('puzzle',dispose,()=>ctrl);
-  const u=$('#bUndo');if(u)u.remove();
   dispose.push(()=>ctrl&&ctrl.destroy());
 }
 
 /* =====================================================================
-   SCREEN 5 — Play Chess / navigation menu
+   SCREEN 5 — Play menu   (grouped, honest about what is not available)
    ===================================================================== */
 function menuRender(){
+  const R=homeResume();
   const item=(icon,title,desc,attr)=>`<li><button type="button" class="mitem" ${attr}><span class="ico" aria-hidden="true">${icon}</span><span class="mtx"><b>${title}</b><span>${desc}</span></span></button></li>`;
-  return `${toolbarHTML()}
-  <div class="lay lay-menu">
-    <h1 class="sr-only" tabindex="-1">Play Chess menu</h1>
+  const na=(title,why)=>`<li><button type="button" class="mna" data-na="${esc(title)}" data-why="${esc(why)}"><b>${esc(title)}</b><span>Not available in this prototype</span></button></li>`;
+  return `<div class="lay lay-menu">
     <section class="mpanel pnl" aria-labelledby="mh">
-      <div class="mhead">${I.play(48)}<h2 id="mh">Play Chess</h2></div>
+      <div class="mhead"><button type="button" class="btn" id="mBack" aria-label="Back to the previous screen">${I.back(18)}<span>Back</span></button><h1 id="mh" tabindex="-1">Play menu</h1></div>
       <div class="mlist" id="mlist">
-        <button type="button" class="acc-card" data-open-a11y>
-          <span class="ico">${I.access(34)}</span>
-          <span class="mtx"><b>Accessibility settings</b><span>Screen reader, voice control, contrast, board and text size, audio and vibration</span></span></button>
-        <h3 class="grp">Play</h3>
-        <ul class="mgroup" aria-label="Play">
-          ${item(I.bolt(54),'Play Online','Play vs a person of similar skill','data-go="play"')}
-          ${item(I.robot(54),'Play Bots','Challenge a bot from Easy to Master','data-go="play"')}
-          ${item(`<span class="coach-ic big">${coachSVG(58,'coach')}</span>`,'Play Coach','Learn as you play a game with Coach','data-go="play"')}
-          ${item(I.hand(58),'Play a Friend','Invite a friend to a game of chess','data-act="friend"')}
-        </ul>
-        <h3 class="grp">Compete and explore</h3>
-        <ul class="mgroup" aria-label="Compete and explore">
-          ${item(I.medal(58),'Tournaments','Join an Arena where anyone can win','data-act="tournaments"')}
-          ${item(I.cube(54),'Chess Variants','Find fun new ways to play chess','data-act="variants"')}
-        </ul>
+        <section aria-labelledby="g1"><h2 class="grp" id="g1">Playing options</h2>
+          <ul class="mgroup">
+            ${item(I.play(44),R.inProgress?'Continue game':'Play against the simulated opponent',R.inProgress?`Move ${Math.ceil(R.n/2)} · ${cname(R.turn)} to move`:'Offline game with the built-in rules engine. You play White.','data-go="play"')}
+          </ul></section>
+        <section aria-labelledby="g2"><h2 class="grp" id="g2">Learning and practice</h2>
+          <ul class="mgroup">
+            ${item(I.puzzle(44,'?'),'Puzzles','Solve one-move checkmates, with hints. Opens the Puzzle screen.','data-go="puzzle"')}
+            ${item(I.hand(44),'Practice board','Try moves freely on the board next to this list. Nothing is saved.','data-practice')}
+          </ul></section>
+        <section aria-labelledby="g3"><h2 class="grp" id="g3">Game Review</h2>
+          <ul class="mgroup">${item(I.reviewic(44),'Review the sample game','Step through four moves with plain-language notes (sample data).','data-go="review"')}</ul></section>
+        <section aria-labelledby="g4"><h2 class="grp" id="g4">Accessibility</h2>
+          <ul class="mgroup">
+            ${item(I.access(44),'Accessibility settings','Vision, nonvisual access, input and motor, audio and haptics.','data-open-a11y')}
+            ${item(I.mic(44),'Voice Controls','Speak or type one command at a time. The microphone never starts by itself.','data-open-voice')}
+            ${item(I.kbd(44),'Help, keyboard shortcuts and voice commands','A short list you can open any time.','data-help')}
+          </ul></section>
+        <details class="na-list"><summary>Not available in this prototype</summary>
+          <p class="small muted">These need online services or content that an offline prototype does not have. They are listed so the structure stays familiar; none of them works.</p>
+          <ul class="na-grid">
+            ${na('Play Online','Playing real people needs a multiplayer server.')}${na('Play Bots','Only one scripted, simulated opponent is included.')}
+            ${na('Play Coach','There is no coaching engine.')}${na('Play a Friend','Inviting a friend needs an online connection.')}
+            ${na('Tournaments','Tournaments need a live multiplayer connection.')}${na('Chess Variants','Only standard chess is implemented.')}${na('Lessons','Lessons are not part of this prototype.')}
+          </ul></details>
       </div>
     </section>
-    <section class="bcol" aria-label="Preview board">
-      <div class="statusstrip m-only" id="statusStrip"></div>
-      <div class="prow"><div class="av dark" style="width:50px;height:50px">${sv(50,'0 0 50 50','<circle cx="25" cy="19" r="9" fill="#6a6866"/><path d="M8,50C8,36 17,32 25,32C33,32 42,36 42,50Z" fill="#6a6866"/>')}</div><div class="pinfo"><span class="pn">Opponent</span><span class="who">Placeholder · preview board</span></div></div>
+    <section class="bcol" aria-label="Practice board">
+      <div class="statusstrip" id="statusStrip" role="group" aria-label="Practice board status"></div>
+      <p class="pb-title"><b>Practice board</b> · not connected to a game</p>
       <div class="bwrap"><div id="board"></div></div>
-      <div class="prow">${ratingRow('Player1','217','White · you',0)}</div>
       ${boardbarHTML('menu')}
-      <p class="kbhint">This preview board follows the real chess rules but is not connected to a game. Press <kbd>R</kbd> to read it.</p>
+      <p class="kbhint">This board follows the real chess rules. Press <kbd>R</kbd> to read it.</p>
     </section>
-    ${dockHTML('menu')}
   </div>`;
 }
 function menuMount(main,dispose){
-  const ctrl=new GameController({host:$('#board'),game:G.menu.game,opponent:false,name:'menu',label:'Preview chessboard',
-    onChange:c=>{
-      const sm=c.summary();
-      $('#dkStatus').innerHTML=statusRowsHTML([['Turn',esc(sm.turn)],['Selected',esc(sm.selected)],['Last move',esc(sm.last)],['Legal moves',sm.over?'—':String(sm.legalCount)],
-        ...(sm.error?[['Error','✖ '+esc(sm.error),'bad']]:[])]);
-      syncBoardbar(c);paintStrip(sm);
-    }});
+  const ctrl=new GameController({host:$('#board'),game:G.menu.game,opponent:false,name:'menu',label:'Practice chessboard',
+    onChange:c=>{syncBoardbar(c);paintStrip(c.summary())}});
   Ctx.kind='menu';Ctx.ctrl=ctrl;dispose.push(()=>ctrl.destroy());
   $('#mlist').addEventListener('keydown',e=>{
     if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;
-    const bs=$$('button',$('#mlist')),i=bs.indexOf(document.activeElement);if(i<0)return;
+    const bs=$$('button,summary',$('#mlist')).filter(b=>b.offsetParent!==null),i=bs.indexOf(document.activeElement);if(i<0)return;
     e.preventDefault();bs[(i+(e.key==='ArrowDown'?1:-1)+bs.length)%bs.length].focus();
   });
-  mountDock('menu',dispose,()=>ctrl);
+  main.addEventListener('click',e=>{
+    if(e.target.closest('#mBack')){goBack();return}
+    if(e.target.closest('[data-help]')){showHelp();return}
+    if(e.target.closest('[data-practice]')){const f=$('#board .sq[tabindex="0"]')||$('#board .sq');if(f)f.focus();say('Practice board focused. Use the arrow keys and Enter.',{kind:'info'});return}
+    const na=e.target.closest('[data-na]');
+    if(na)infoDialog(na.dataset.na+' is not available',`<p>${esc(na.dataset.why)}</p><p class="dlg-hint">AcChess is an offline academic prototype. Use the simulated opponent on the Playing screen instead.</p>`,[{label:'Play the simulated opponent',primary:true,onClick:()=>navigate('play')}]);
+  });
+  mountBoardbar(()=>ctrl);
 }
 
 /* =====================================================================
@@ -4146,10 +4373,11 @@ const SCREENS={
   play:{title:'Playing',render:playRender,mount:playMount},
   review:{title:'Game Review',render:reviewRender,mount:reviewMount},
   puzzle:{title:'Puzzles',render:puzzleRender,mount:puzzleMount},
-  menu:{title:'Play Chess menu',render:menuRender,mount:menuMount}
+  menu:{title:'Play menu',render:menuRender,mount:menuMount}
 };
 const Dispose=[];
 let CURRENT=null;
+function goBack(){const p=G.prev&&G.prev!=='menu'&&SCREENS[G.prev]?G.prev:'home';navigate(p)}
 function navigate(id){
   if(location.hash==='#'+id)route(true);else location.hash=id;
 }
@@ -4159,7 +4387,7 @@ function route(userNav){
   const sc=SCREENS[id]?id:'home';
   Dispose.splice(0).forEach(f=>{try{f()}catch(e){console.error(e)}});
   stopSpeaking();
-  Ctx.kind=null;Ctx.ctrl=null;CURRENT=sc;
+  Ctx.kind=null;Ctx.ctrl=null;if(CURRENT&&CURRENT!==sc)G.prev=CURRENT;CURRENT=sc;
   if(Dlg.isOpen())Dlg.close();
   $('#sidebarHost').innerHTML=sidebarHTML(sc);bindSidebar();
   const oldMain=$('#main'),main=oldMain.cloneNode(false); // fresh element: drops listeners from the previous screen
@@ -4182,6 +4410,7 @@ document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');
   if(g){e.preventDefault();navigate(g.dataset.go);return}
   if(e.target.closest('[data-open-a11y]')){openA11y();return}
+  if(e.target.closest('[data-back]')){goBack();return}
   const a=e.target.closest('[data-act]');
   if(a){
     const act=a.dataset.act;
@@ -4208,6 +4437,7 @@ function boot(){
   if(window.ResizeObserver)new ResizeObserver(setPbh).observe(pb);
   route(false);
   if(!welcomeDismissed())say('Welcome to AcChess. Press Alt Shift A for Accessibility Settings, or Alt Shift V for Voice Controls. The same buttons are at the top of every screen. Press Tab to start.',{kind:'info',speak:false});
+  if(!Store.persistent)say('Your browser blocks saving preferences, so settings last only until you close this tab.',{kind:'info',speak:false});
 }
 boot();
 

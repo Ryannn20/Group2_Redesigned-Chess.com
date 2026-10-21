@@ -9,7 +9,7 @@ class ABoard{
     this.host=host;
     this.o=Object.assign({interactive:true,flipped:false,static:false,label:'Chessboard'},o);
     this.cur=[6,4];this.cells=new Map();this.mouse=false;this._edgeAt=0;
-    this.st={g:parseFEN(START_FEN).g,last:null,sel:null,targets:new Map(),check:null,paints:{},arrows:[],badge:null,hint:null,pal:undefined};
+    this.st={g:parseFEN(START_FEN).g,last:null,sel:null,targets:new Map(),check:null,paints:{},arrows:[],badge:null,hint:null,bad:null,pal:undefined};
     ABoard.all.add(this);
     this.build();this.bind();this.paint();
     if(window.ResizeObserver){new ResizeObserver(()=>host.style.setProperty('--bwpx',host.clientWidth||700)).observe(host)}
@@ -33,7 +33,7 @@ class ABoard{
         c.className='sq '+((r+f)%2===0?'l':'d');c.dataset.r=r;c.dataset.f=f;
         if(!o.static){c.setAttribute('role','gridcell');c.setAttribute('aria-colindex',vc+1);c.tabIndex=-1}
         c.innerHTML='<span class="pcl" aria-hidden="true"></span><span class="mk" aria-hidden="true"></span>'+
-          (vc===0?`<span class="rk" aria-hidden="true">${8-r}</span>`:'')+(vr===7?`<span class="fl" aria-hidden="true">${FILES[f]}</span>`:'');
+          (vc===0?`<span class="rk" aria-hidden="true" data-t="${8-r}"></span>`:'')+(vr===7?`<span class="fl" aria-hidden="true" data-t="${FILES[f]}"></span>`:'');
         row.appendChild(c);this.cells.set(r*8+f,c);
       }
       h.appendChild(row);
@@ -140,6 +140,7 @@ class ABoard{
     if(s.last){if(eqSq(s.last[1],[r,f]))t+=', last move destination';else if(eqSq(s.last[0],[r,f]))t+=', last move origin'}
     if(s.badge&&s.badge.sq===n)t+=`, marked ${s.badge.text}`;
     if(s.hint===n)t+=', hint';
+    if(s.bad===n)t+=', illegal destination';
     return t;
   }
   paint(){
@@ -158,13 +159,14 @@ class ABoard{
       c.classList.toggle('lmt',!!lmTo);c.classList.toggle('lmf',!!lmFrom);
       c.classList.toggle('chk',!!chk);
       c.classList.toggle('hnt',s.hint===n);
+      c.classList.toggle('bad',s.bad===n);
       const pt=s.paints[n];
       c.classList.toggle('pt',!!pt);
       c.style.setProperty('--pt',pt||'');
       let chip='';
-      if(chk)chip='CHECK';else if(isSel)chip='SELECTED';else if(s.hint===n)chip='HINT';else if(lmTo)chip='to';else if(lmFrom)chip='from';
+      if(s.bad===n)chip='ILLEGAL';else if(chk)chip='CHECK';else if(isSel)chip='SELECTED';else if(s.hint===n)chip='HINT';else if(lmTo)chip='to';else if(lmFrom)chip='from';
       c.querySelector('.mk').dataset.chip=chip;
-      c.querySelector('.mk').dataset.chipS={SELECTED:'SEL',CHECK:'CHK'}[chip]||chip;   // short text for small boards
+      c.querySelector('.mk').dataset.chipS={SELECTED:'SEL',CHECK:'CHK',ILLEGAL:'✖'}[chip]||chip;   // short text for small boards
       c.querySelector('.mk').innerHTML=(s.badge&&s.badge.sq===n)?`<b class="bdg">${esc(s.badge.sym)}</b>`:'';
       if(!this.o.static){
         c.setAttribute('aria-label',this.labelFor(r,f));
@@ -284,8 +286,9 @@ class GameController{
     if(!this.canMove()){this.error(this.thinking?'The opponent is thinking. Please wait for their move.':`It is ${cname(this.game.turn)}'s turn.`);return false}
     return true;
   }
-  error(text){
+  error(text,sq){
     this.lastError=text;say(text,{kind:'alert',urgent:true});fx('invalid');
+    if(sq){this.board.set({bad:sq});clearTimeout(this._badT);this._badT=setTimeout(()=>{this.board.set({bad:null})},2400)}
     const h=this.host;h.classList.remove('shake');void h.offsetWidth;if(!S.reduceMotion)h.classList.add('shake');
     this.onChange(this);
   }
@@ -301,7 +304,7 @@ class GameController{
       const hit=this.game.legal(this.sel[0],this.sel[1]).filter(m=>eqSq(m.to,[r,f]));
       if(hit.length){this.move(this.sel,[r,f],null,src);return}
       if(p&&p.c===this.game.turn){this.select(r,f);return}
-      this.error(explainIllegal(this.game,this.sel,[r,f]));return;
+      this.error(explainIllegal(this.game,this.sel,[r,f]),n);return;
     }
     if(p&&p.c===this.game.turn){this.select(r,f);return}
     if(p&&p.c!==this.game.turn&&this.canMove()){say(`That is a ${pname(p)}. Select one of your ${cname(this.game.turn).toLowerCase()} pieces first.`,{kind:'alert'});fx('invalid');return}
@@ -336,7 +339,7 @@ class GameController{
   move(from,to,promo,src){
     if(!this.guard())return false;
     const cands=this.game.legal(from[0],from[1]).filter(m=>eqSq(m.to,to));
-    if(!cands.length){this.error(explainIllegal(this.game,from,to));return false}
+    if(!cands.length){this.error(explainIllegal(this.game,from,to),sqn(...to));return false}
     let m=cands[0];
     if(cands.length>1){
       if(promo){m=cands.find(x=>x.promo===promo)}
